@@ -163,69 +163,141 @@ export function renderHomePage(lang: Lang): string {
   `
 
   const loginPromptModal = `
-  <!-- 登录提醒弹窗 (v33 onboarding style) -->
-  <div id="loginPromptModal" class="hidden fixed inset-0 flex items-center justify-center z-[300]" style="background:rgba(0,0,0,0.4); backdrop-filter:blur(16px) saturate(120%); -webkit-backdrop-filter:blur(16px) saturate(120%);">
-    <div class="bg-white rounded-3xl max-w-lg w-full mx-4 overflow-hidden animate-scale-in" style="box-shadow:0 24px 72px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.08); max-height:85vh;">
-      <!-- 顶部渐变背景 -->
-      <div class="relative h-48 overflow-hidden" style="background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 50%, #32ade6 100%);">
-        <div style="position:absolute;inset:0;background-image:url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);"></div>
-        <!-- 关闭按钮 -->
-        <button onclick="closeLoginPrompt()" class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-all z-10">
-          <i class="fas fa-times"></i>
-        </button>
-        <!-- 浮动Logo -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="animate-float">
-            <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center">
-              <i class="fas fa-upload text-white text-4xl"></i>
-            </div>
-          </div>
+  <!-- 登录弹窗 (v33 截图样式: 白色卡片 + 完整登录/注册表单) -->
+  <div id="loginPromptModal" class="login-modal-overlay hidden" onclick="if(event.target===this)closeLoginPrompt()">
+    <div class="login-modal-card">
+      
+      <!-- 关闭按钮 -->
+      <button onclick="closeLoginPrompt()" class="login-modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <!-- Logo区域 -->
+      <div class="login-modal-logo-area">
+        <!-- 双圆叠合 Logo -->
+        <div class="login-modal-logo-circles">
+          <div class="login-circle-top"></div>
+          <div class="login-circle-bottom"></div>
         </div>
+        <h1 class="login-modal-brand">CONTRACT<br>CONNECT</h1>
+        <div class="login-modal-divider"></div>
+        <p class="login-modal-powered">POWERED BY MICRO CONNECT GROUP</p>
+        <p class="login-modal-appname">${tt(TEXT.appName, lang)}</p>
       </div>
 
-      <!-- 内容 -->
-      <div class="p-8 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 mb-3">${lang === 'zh' ? '欢迎使用发起通' : 'Welcome to Originate Connect'}</h2>
-        <p class="text-gray-500 mb-6">${lang === 'zh' ? '上传材料 · AI打包成书 · 分享给潜在参与方' : 'Upload materials · AI packages them · Share with investors'}</p>
+      <!-- 登录/注册 Tab -->
+      <div class="login-modal-tabs">
+        <button onclick="switchModalTab('login')" id="modalTabLogin" class="login-modal-tab login-modal-tab-active">${tt(TEXT.login, lang)}</button>
+        <button onclick="switchModalTab('register')" id="modalTabRegister" class="login-modal-tab">${tt(TEXT.register, lang)}</button>
+      </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-8">
-          <div class="p-4 bg-teal-50 rounded-2xl">
-            <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
-              <i class="fas fa-cloud-upload-alt text-teal-600 text-xl"></i>
-            </div>
-            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? '上传材料' : 'Upload'}</p>
+      <!-- 登录表单 -->
+      <div id="modalFormLogin" class="login-modal-form">
+        <form onsubmit="event.preventDefault(); handleModalLogin();" autocomplete="on">
+          <div class="login-form-group">
+            <label class="login-form-label">${tt(TEXT.emailOrUsername, lang)}</label>
+            <input type="text" id="modalLoginUsername" placeholder="${lang === 'zh' ? '请输入用户名或邮箱' : 'Enter username or email'}" autocomplete="username"
+              class="login-form-input"
+              onkeydown="if(event.key==='Enter')document.getElementById('modalLoginPassword').focus()">
           </div>
-          <div class="p-4 bg-cyan-50 rounded-2xl">
-            <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
-              <i class="fas fa-robot text-cyan-600 text-xl"></i>
+          <div class="login-form-group">
+            <label class="login-form-label">${tt(TEXT.password, lang)}</label>
+            <div class="login-pwd-wrapper">
+              <input type="password" id="modalLoginPassword" placeholder="${lang === 'zh' ? '请输入密码' : 'Enter password'}" autocomplete="current-password"
+                class="login-form-input login-form-input-pwd">
+              <button type="button" onclick="toggleModalPwd('modalLoginPassword', this)" class="login-pwd-toggle" tabindex="-1">
+                <i class="fas fa-eye"></i>
+              </button>
             </div>
-            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? 'AI整理' : 'AI Process'}</p>
           </div>
-          <div class="p-4 bg-pink-50 rounded-2xl">
-            <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
-              <i class="fas fa-share-alt text-pink-600 text-xl"></i>
-            </div>
-            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? '分享链接' : 'Share'}</p>
+          <div class="login-form-options">
+            <label class="login-remember">
+              <input type="checkbox" class="login-checkbox">
+              <span>${tt(TEXT.rememberMe, lang)}</span>
+            </label>
+            <a href="#" class="login-forgot">${tt(TEXT.forgotPassword, lang)}</a>
           </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="space-y-3">
-          <a href="/login${lang === 'en' ? '?lang=en' : ''}" class="block w-full py-3 rounded-xl font-medium shadow-lg text-white text-center transition-all hover:shadow-xl" style="background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);">
-            <i class="fas fa-sign-in-alt mr-2"></i>${tt(TEXT.login, lang)} / ${tt(TEXT.register, lang)}
-          </a>
-          <button onclick="handleGuestLoginHome()" class="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm">
+          <div id="modalLoginError" class="login-form-error hidden"></div>
+          <button type="submit" id="modalLoginBtn" class="login-btn-primary">
+            <i class="fas fa-sign-in-alt mr-2"></i>${tt(TEXT.login, lang)}
+          </button>
+          <button type="button" onclick="handleGuestLoginHome()" class="login-btn-guest">
             <i class="fas fa-user-secret mr-2"></i>${lang === 'zh' ? '游客模式（体验功能）' : 'Guest Mode (Try Features)'}
           </button>
-        </div>
+
+          <!-- 企业SSO -->
+          <div class="login-sso-section">
+            <p class="login-sso-label">${lang === 'zh' ? '企业用户' : 'Enterprise'}</p>
+            <button type="button" onclick="closeLoginPrompt(); showToast(LANG==='zh'?'企业SSO即将上线':'SSO coming soon','info');" class="login-btn-sso">
+              <i class="fas fa-building mr-2"></i>${lang === 'zh' ? '公司SSO登录（即将上线）' : 'Company SSO (Coming Soon)'}
+            </button>
+          </div>
+        </form>
       </div>
 
-      <!-- 底部 -->
-      <div class="px-8 pb-6 flex items-center justify-between">
-        <button onclick="closeLoginPrompt()" class="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-          ${lang === 'zh' ? '稍后再说' : 'Maybe later'}
-        </button>
-        <p class="text-xs text-gray-300">POWERED BY MICRO CONNECT GROUP</p>
+      <!-- 注册表单 -->
+      <div id="modalFormRegister" class="login-modal-form hidden">
+        <form onsubmit="event.preventDefault(); handleModalRegister();" autocomplete="on">
+          <div class="login-form-row">
+            <div class="login-form-group">
+              <label class="login-form-label">${lang === 'zh' ? '用户名' : 'Username'} <span style="color:#ef4444;">*</span></label>
+              <input type="text" id="modalRegUsername" placeholder="${lang === 'zh' ? '用于登录' : 'For login'}" class="login-form-input">
+            </div>
+            <div class="login-form-group">
+              <label class="login-form-label">${tt(TEXT.displayName, lang)}</label>
+              <input type="text" id="modalRegDisplayName" placeholder="${lang === 'zh' ? '显示名称' : 'Display name'}" class="login-form-input">
+            </div>
+          </div>
+          <div class="login-form-group">
+            <label class="login-form-label">${tt(TEXT.email, lang)} <span style="color:#ef4444;">*</span></label>
+            <input type="email" id="modalRegEmail" placeholder="your@email.com" class="login-form-input">
+          </div>
+          <div class="login-form-group">
+            <label class="login-form-label">${lang === 'zh' ? '手机号' : 'Phone'}</label>
+            <input type="tel" id="modalRegPhone" placeholder="${lang === 'zh' ? '13800138000' : '+1 (555) 000-0000'}" class="login-form-input">
+          </div>
+          <div class="login-form-group">
+            <label class="login-form-label">${tt(TEXT.password, lang)} <span style="color:#ef4444;">*</span></label>
+            <div class="login-pwd-wrapper">
+              <input type="password" id="modalRegPassword" placeholder="${lang === 'zh' ? '至少6位' : 'Min 6 chars'}" autocomplete="new-password"
+                class="login-form-input login-form-input-pwd">
+              <button type="button" onclick="toggleModalPwd('modalRegPassword', this)" class="login-pwd-toggle" tabindex="-1">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="login-form-group">
+            <label class="login-form-label">${lang === 'zh' ? '默认角色' : 'Default Role'}</label>
+            <div class="login-role-grid">
+              <button type="button" onclick="selectModalRole('investor')" id="modalRoleInvestor" class="login-role-btn">
+                <i class="fas fa-landmark" style="color:#2EC4B6;"></i>
+                <span>${lang === 'zh' ? '投资方' : 'Investor'}</span>
+              </button>
+              <button type="button" onclick="selectModalRole('borrower')" id="modalRoleBorrower" class="login-role-btn">
+                <i class="fas fa-store" style="color:#f59e0b;"></i>
+                <span>${lang === 'zh' ? '融资方' : 'Borrower'}</span>
+              </button>
+              <button type="button" onclick="selectModalRole('both')" id="modalRoleBoth" class="login-role-btn login-role-active">
+                <i class="fas fa-exchange-alt" style="color:#06b6d4;"></i>
+                <span>${lang === 'zh' ? '两者皆可' : 'Both'}</span>
+              </button>
+            </div>
+          </div>
+          <div class="login-form-row">
+            <div class="login-form-group">
+              <label class="login-form-label">${tt(TEXT.company, lang)}</label>
+              <input type="text" id="modalRegCompany" placeholder="${lang === 'zh' ? '所属公司' : 'Company'}" class="login-form-input">
+            </div>
+            <div class="login-form-group">
+              <label class="login-form-label">${lang === 'zh' ? '职位' : 'Title'}</label>
+              <input type="text" id="modalRegTitle" placeholder="${lang === 'zh' ? '您的职位' : 'Your title'}" class="login-form-input">
+            </div>
+          </div>
+          <div id="modalRegError" class="login-form-error hidden"></div>
+          <button type="submit" id="modalRegBtn" class="login-btn-primary">
+            <i class="fas fa-user-plus mr-2"></i>${tt(TEXT.register, lang)}
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -375,23 +447,258 @@ const homePageCSS = `
   margin: 0 auto;
 }
 
-/* Login Prompt Modal */
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-.animate-scale-in { animation: scaleIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-float { animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.modal-closing .animate-scale-in { animation: scaleOut 0.2s ease both; }
-@keyframes scaleOut { to { opacity: 0; transform: scale(0.95); } }
+/* ===== Login Prompt Modal (v33 截图精准还原) ===== */
+.login-modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+.login-modal-overlay.hidden { display: none !important; }
+.login-modal-card {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  max-width: 420px; width: calc(100% - 32px);
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.04);
+  animation: loginScaleIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.modal-closing .login-modal-card { animation: loginScaleOut 0.22s ease both; }
+@keyframes loginScaleIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes loginScaleOut { to { opacity: 0; transform: scale(0.96) translateY(8px); } }
+
+/* Close button */
+.login-modal-close {
+  position: absolute; top: 14px; right: 14px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #9ca3af; background: transparent; border: none; cursor: pointer;
+  transition: all 0.2s;
+}
+.login-modal-close:hover { color: #374151; background: #f3f4f6; }
+
+/* Logo area */
+.login-modal-logo-area {
+  padding: 32px 32px 24px; text-align: center;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.login-modal-logo-circles {
+  width: 80px; height: 52px; margin: 0 auto 16px; position: relative;
+}
+.login-circle-top {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #2EC4B6 0%, #3DD8CA 100%);
+  position: absolute; top: 0; left: 8px;
+  box-shadow: 0 4px 16px rgba(46,196,182,0.35);
+}
+.login-circle-bottom {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #28A696 0%, #2EC4B6 100%);
+  position: absolute; top: 4px; left: 28px; opacity: 0.85;
+  box-shadow: 0 4px 16px rgba(40,166,150,0.3);
+}
+.login-modal-brand {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; font-size: 20px; letter-spacing: 0.04em;
+  color: #1a1a1a; line-height: 1.15; margin: 0 0 6px;
+}
+.login-modal-divider {
+  width: 100px; height: 2.5px; background: #2EC4B6;
+  margin: 8px auto 10px; border-radius: 2px;
+}
+.login-modal-powered {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px; letter-spacing: 0.2em; color: #999;
+  font-weight: 500; margin: 0;
+}
+.login-modal-appname {
+  font-size: 18px; font-weight: 700; color: #1a1a1a;
+  margin: 14px 0 0;
+}
+
+/* Tabs */
+.login-modal-tabs {
+  display: flex; border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.login-modal-tab {
+  flex: 1; padding: 12px 0; text-align: center;
+  font-size: 15px; font-weight: 600;
+  color: #86868b; background: none; border: none; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s ease;
+}
+.login-modal-tab-active {
+  color: #2EC4B6 !important;
+  border-bottom-color: #2EC4B6 !important;
+}
+
+/* Form area */
+.login-modal-form { padding: 24px; }
+.login-form-group { margin-bottom: 16px; }
+.login-form-label {
+  display: block; font-size: 13px; font-weight: 500;
+  color: #374151; margin-bottom: 6px;
+}
+.login-form-input {
+  width: 100%; padding: 11px 16px;
+  border: 1px solid #e5e7eb; border-radius: 12px;
+  font-size: 14px; color: #1a1a1a;
+  background: #fff; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.login-form-input:focus {
+  border-color: #2EC4B6;
+  box-shadow: 0 0 0 3px rgba(46,196,182,0.12);
+}
+.login-form-input::placeholder { color: #bbb; }
+.login-form-input-pwd { padding-right: 48px; }
+.login-form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.login-pwd-wrapper { position: relative; }
+.login-pwd-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #94a3b8; cursor: pointer; background: transparent; border: none;
+  transition: all 0.15s;
+}
+.login-pwd-toggle:hover { color: #475569; background: #f1f5f9; }
+
+/* Options row */
+.login-form-options {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; font-size: 13px;
+}
+.login-remember {
+  display: flex; align-items: center; color: #6b7280; cursor: pointer;
+  gap: 6px;
+}
+.login-checkbox {
+  width: 16px; height: 16px; accent-color: #2EC4B6;
+  flex-shrink: 0; cursor: pointer;
+}
+.login-forgot {
+  color: #2EC4B6; text-decoration: none; font-weight: 500;
+}
+.login-forgot:hover { color: #249e93; }
+
+/* Error */
+.login-form-error {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px; margin-bottom: 14px;
+  background: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 10px; color: #dc2626; font-size: 13px;
+  animation: loginShake 0.4s ease-in-out;
+}
+.login-form-error.hidden { display: none; }
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Primary button */
+.login-btn-primary {
+  width: 100%; padding: 12px 0; border-radius: 12px;
+  font-size: 15px; font-weight: 600; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(93,196,179,0.3);
+  transition: all 0.28s cubic-bezier(0.28, 0.11, 0.32, 1);
+  margin-bottom: 10px;
+  position: relative;
+}
+.login-btn-primary:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(93,196,179,0.4);
+  transform: translateY(-1px);
+}
+.login-btn-primary.btn-loading { color: transparent !important; pointer-events: none; }
+.login-btn-primary.btn-loading::after {
+  content: ''; position: absolute; width: 20px; height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3); border-radius: 50%;
+  border-top-color: #fff; animation: loginSpin 0.7s linear infinite;
+  left: 50%; top: 50%; margin-left: -10px; margin-top: -10px;
+}
+@keyframes loginSpin { to { transform: rotate(360deg); } }
+
+/* Guest button */
+.login-btn-guest {
+  width: 100%; padding: 12px 0; border-radius: 12px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  background: #fff; color: #6b7280;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+  margin-bottom: 0;
+}
+.login-btn-guest:hover { background: #f9fafb; border-color: #d1d5db; }
+
+/* SSO section */
+.login-sso-section {
+  margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+.login-sso-label {
+  font-size: 11px; color: #9ca3af; text-align: center;
+  margin: 0 0 10px;
+}
+.login-btn-sso {
+  width: 100%; padding: 12px 0; border-radius: 12px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  background: #f3f4f6; color: #6b7280; border: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.login-btn-sso:hover { background: #e5e7eb; }
+
+/* Role selector */
+.login-role-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.login-role-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 10px 8px;
+  border: 2px solid #e5e7eb; border-radius: 10px;
+  font-size: 12px; font-weight: 500; color: #374151;
+  background: #fff; cursor: pointer; transition: all 0.2s;
+}
+.login-role-btn:hover { border-color: #d1d5db; }
+.login-role-btn i { font-size: 16px; }
+.login-role-active,
+.login-role-btn.login-role-active {
+  border-color: #2EC4B6 !important;
+  background: rgba(46,196,182,0.06) !important;
+}
+
+/* Scrollbar in modal */
+.login-modal-card::-webkit-scrollbar { width: 4px; }
+.login-modal-card::-webkit-scrollbar-track { background: transparent; }
+.login-modal-card::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-modal-card { border-radius: 16px; }
+  .login-modal-logo-area { padding: 24px 24px 20px; }
+  .login-modal-form { padding: 20px; }
+  .login-form-row { grid-template-columns: 1fr; }
+}
 `
 
 // ---- Page-specific JavaScript ----
 function homePageScript(lang: Lang): string {
   return `
-  // ========== 登录提醒弹窗 ==========
+  // ========== 登录弹窗 (完整登录/注册) ==========
+  var modalSelectedRole = 'both';
+
   function checkLoginPrompt() {
     var token = localStorage.getItem('oc_token');
     if (!token) {
-      // 未登录 → 显示弹窗
       var modal = document.getElementById('loginPromptModal');
       if (modal) {
         modal.classList.remove('hidden');
@@ -407,9 +714,156 @@ function homePageScript(lang: Lang): string {
         modal.classList.add('hidden');
         modal.classList.remove('modal-closing');
         document.body.style.overflow = '';
-      }, 200);
+      }, 220);
     }
   }
+
+  // Tab 切换
+  function switchModalTab(tab) {
+    var tabLogin = document.getElementById('modalTabLogin');
+    var tabReg = document.getElementById('modalTabRegister');
+    var formLogin = document.getElementById('modalFormLogin');
+    var formReg = document.getElementById('modalFormRegister');
+    if (tab === 'login') {
+      tabLogin.className = 'login-modal-tab login-modal-tab-active';
+      tabReg.className = 'login-modal-tab';
+      formLogin.classList.remove('hidden');
+      formReg.classList.add('hidden');
+    } else {
+      tabReg.className = 'login-modal-tab login-modal-tab-active';
+      tabLogin.className = 'login-modal-tab';
+      formReg.classList.remove('hidden');
+      formLogin.classList.add('hidden');
+    }
+  }
+
+  // 密码显示/隐藏
+  function toggleModalPwd(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    var icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+
+  // 角色选择
+  function selectModalRole(role) {
+    modalSelectedRole = role;
+    ['investor', 'borrower', 'both'].forEach(function(r) {
+      var btnId = 'modalRole' + r.charAt(0).toUpperCase() + r.slice(1);
+      var btn = document.getElementById(btnId);
+      if (btn) {
+        if (r === role) {
+          btn.classList.add('login-role-active');
+        } else {
+          btn.classList.remove('login-role-active');
+        }
+      }
+    });
+  }
+
+  // 显示表单错误
+  function showFormError(elId, msg) {
+    var el = document.getElementById(elId);
+    if (el) {
+      el.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right:6px;"></i>' + msg;
+      el.classList.remove('hidden');
+    }
+  }
+  function hideFormError(elId) {
+    var el = document.getElementById(elId);
+    if (el) el.classList.add('hidden');
+  }
+
+  // 登录处理
+  function handleModalLogin() {
+    var username = document.getElementById('modalLoginUsername').value.trim();
+    var password = document.getElementById('modalLoginPassword').value;
+    var btn = document.getElementById('modalLoginBtn');
+
+    hideFormError('modalLoginError');
+    if (!username || !password) {
+      showFormError('modalLoginError', LANG === 'zh' ? '请输入用户名和密码' : 'Please enter username and password');
+      return;
+    }
+    if (btn) { btn.classList.add('btn-loading'); btn.disabled = true; }
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        localStorage.setItem('oc_token', data.token);
+        localStorage.setItem('oc_user', JSON.stringify(data.user));
+        hideFormError('modalLoginError');
+        closeLoginPrompt();
+        onModalLoginSuccess(data.user);
+      } else {
+        showFormError('modalLoginError', data.error || (LANG === 'zh' ? '登录失败' : 'Login failed'));
+        if (btn) { btn.classList.remove('btn-loading'); btn.disabled = false; }
+      }
+    })
+    .catch(function() {
+      showFormError('modalLoginError', LANG === 'zh' ? '网络错误，请重试' : 'Network error, please retry');
+      if (btn) { btn.classList.remove('btn-loading'); btn.disabled = false; }
+    });
+  }
+
+  // 注册处理
+  function handleModalRegister() {
+    var username = document.getElementById('modalRegUsername').value.trim();
+    var email = document.getElementById('modalRegEmail').value.trim();
+    var password = document.getElementById('modalRegPassword').value;
+    var displayName = document.getElementById('modalRegDisplayName').value.trim();
+    var phone = document.getElementById('modalRegPhone').value.trim();
+    var company = document.getElementById('modalRegCompany').value.trim();
+    var title = document.getElementById('modalRegTitle').value.trim();
+    var btn = document.getElementById('modalRegBtn');
+
+    hideFormError('modalRegError');
+    if (!username || !email || !password) {
+      showFormError('modalRegError', LANG === 'zh' ? '请填写必填项（用户名、邮箱、密码）' : 'Please fill required fields');
+      return;
+    }
+    if (password.length < 6) {
+      showFormError('modalRegError', LANG === 'zh' ? '密码至少6位' : 'Password must be at least 6 characters');
+      return;
+    }
+    if (btn) { btn.classList.add('btn-loading'); btn.disabled = true; }
+
+    fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, email: email, password: password, displayName: displayName || username, phone: phone, company: company, title: title, defaultRole: modalSelectedRole })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        localStorage.setItem('oc_token', data.token);
+        localStorage.setItem('oc_user', JSON.stringify(data.user));
+        hideFormError('modalRegError');
+        closeLoginPrompt();
+        onModalLoginSuccess(data.user);
+      } else {
+        showFormError('modalRegError', data.error || (LANG === 'zh' ? '注册失败' : 'Registration failed'));
+        if (btn) { btn.classList.remove('btn-loading'); btn.disabled = false; }
+      }
+    })
+    .catch(function() {
+      showFormError('modalRegError', LANG === 'zh' ? '网络错误，请重试' : 'Network error, please retry');
+      if (btn) { btn.classList.remove('btn-loading'); btn.disabled = false; }
+    });
+  }
+
+  // 游客登录
   function handleGuestLoginHome() {
     var guestUser = {
       id: 'guest_' + Date.now(),
@@ -422,7 +876,13 @@ function homePageScript(lang: Lang): string {
     localStorage.setItem('oc_token', 'guest_token');
     localStorage.setItem('oc_user', JSON.stringify(guestUser));
     closeLoginPrompt();
-    showToast(LANG === 'zh' ? '游客模式，欢迎体验' : 'Guest mode, welcome!', 'success');
+    onModalLoginSuccess(guestUser);
+  }
+
+  // 登录成功后刷新页面状态
+  function onModalLoginSuccess(user) {
+    var name = user.displayName || user.username || 'User';
+    showToast(LANG === 'zh' ? '欢迎，' + name : 'Welcome, ' + name, 'success');
     // 刷新 navbar 状态
     var loginBtn = document.getElementById('nav-login-btn');
     var userMenu = document.getElementById('nav-user-menu');
@@ -430,9 +890,10 @@ function homePageScript(lang: Lang): string {
     if (userMenu) {
       userMenu.style.display = 'flex';
       var nameEl = document.getElementById('nav-user-name');
-      if (nameEl) nameEl.textContent = guestUser.displayName;
+      if (nameEl) nameEl.textContent = name;
     }
   }
+
   // 页面加载后弹出登录提醒（在splash结束后）
   setTimeout(checkLoginPrompt, 1200);
 
