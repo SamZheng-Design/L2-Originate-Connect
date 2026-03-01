@@ -160,10 +160,10 @@ export const INDUSTRIES: Record<string, Bilingual & { icon: string }> = {
 
 // Project statuses
 export const PROJECT_STATUS: Record<string, { zh: string; en: string; color: string; bgColor: string }> = {
-  draft:      { zh: '草稿', en: 'Draft', color: '#6e6e73', bgColor: '#f5f5f7' },
-  processing: { zh: 'AI 处理中', en: 'Processing', color: '#F59E0B', bgColor: '#FEF3C7' },
-  ready:      { zh: '已就绪', en: 'Ready', color: '#34c759', bgColor: '#dcfce7' },
-  published:  { zh: '已发布', en: 'Published', color: '#5DC4B3', bgColor: '#d1fae5' },
+  draft:      { zh: '草稿', en: 'Draft', color: '#86868b', bgColor: '#f5f5f7' },
+  processing: { zh: 'AI 处理中', en: 'Processing', color: '#32ade6', bgColor: 'rgba(50,173,230,0.1)' },
+  ready:      { zh: '已就绪', en: 'Ready', color: '#34c759', bgColor: 'rgba(52,199,89,0.1)' },
+  published:  { zh: '已发布', en: 'Published', color: '#5DC4B3', bgColor: 'rgba(93,196,179,0.1)' },
 }
 
 // Format money

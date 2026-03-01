@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-// Toast 通知组件
+// Toast 通知组件 — v33 对齐版：毛玻璃 + 精致阴影
 // ═══════════════════════════════════════════════════════
 
 export function renderToast(): string {
@@ -8,27 +8,33 @@ export function renderToast(): string {
 
 export const toastCSS = `
 .toast-container {
-  position: fixed; top: 72px; right: 24px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 8px;
+  position: fixed; top: 72px; right: 24px; z-index: 9000;
+  display: flex; flex-direction: column; gap: 10px;
   pointer-events: none;
 }
 .toast {
   pointer-events: auto;
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px; border-radius: var(--radius-md);
-  background: var(--bg-white);
-  border: 1px solid var(--border-default);
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: var(--shadow-lg);
   font-size: 14px; font-weight: 500; color: var(--text-primary);
-  animation: toastIn var(--duration-normal) var(--ease-spring) both;
+  animation: toastIn var(--duration-normal) var(--ease-apple) both;
   max-width: 360px;
 }
-.toast.toast-out { animation: toastOut var(--duration-fast) var(--ease-spring) both; }
+.toast.toast-out { animation: toastOut var(--duration-fast) var(--ease-apple) both; }
 .toast-icon { font-size: 16px; flex-shrink: 0; }
 .toast-success .toast-icon { color: var(--color-success); }
 .toast-warning .toast-icon { color: var(--color-warning); }
 .toast-error .toast-icon { color: var(--color-error); }
 .toast-info .toast-icon { color: var(--color-info); }
+.toast-success { border-left: 3px solid var(--color-success); }
+.toast-warning { border-left: 3px solid var(--color-warning); }
+.toast-error { border-left: 3px solid var(--color-error); }
+.toast-info { border-left: 3px solid var(--color-info); }
 `
 
 export const toastScript = `

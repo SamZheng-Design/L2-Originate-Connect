@@ -31,7 +31,7 @@ function statusBadge(status: string, lang: Lang): string {
 function industryBadge(industry: string, lang: Lang): string {
   const ind = INDUSTRIES[industry]
   if (!ind) return ''
-  return `<span class="badge" style="color: var(--oc-dark); background: var(--oc-light);">
+  return `<span class="badge badge-primary">
     <i class="fas ${ind.icon}" style="font-size:10px"></i> ${tt(ind, lang)}
   </span>`
 }
@@ -57,8 +57,8 @@ function renderProjectCard(p: OriginateProject, lang: Lang, index: number): stri
   return `
   <div class="card card-hover project-card animate-fade-in" style="animation-delay: ${index * 80}ms" data-status="${p.status}" onclick="location.href='/project/${p.id}${lang === 'en' ? '?lang=en' : ''}'">
     <div class="project-card-header">
-      <div class="project-card-icon" style="background: var(--oc-light);">
-        <i class="fas ${indIcon}" style="color: var(--oc-dark); font-size: 18px;"></i>
+      <div class="project-card-icon" style="background: rgba(93,196,179,0.1);">
+        <i class="fas ${indIcon}" style="color: var(--brand-primary); font-size: 18px;"></i>
       </div>
       <div style="flex:1; min-width: 0;">
         <h3 class="project-card-title">${p.companyName}</h3>
@@ -185,9 +185,19 @@ export function renderHomePage(lang: Lang): string {
 const homePageCSS = `
 /* Hero */
 .hero-section {
-  background: linear-gradient(180deg, var(--oc-light) 0%, var(--bg-page) 100%);
+  position: relative;
+  background: linear-gradient(180deg, rgba(93,196,179,0.08) 0%, var(--bg-page) 100%);
   padding: 56px 0 40px;
   text-align: center;
+  overflow: hidden;
+}
+.hero-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(93,196,179,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 70%, rgba(50,173,230,0.06) 0%, transparent 50%);
+  pointer-events: none;
 }
 .hero-inner { max-width: 640px; margin: 0 auto; }
 .hero-logo-wrap {
@@ -229,7 +239,7 @@ const homePageCSS = `
 }
 .stats-tab:hover { color: var(--text-primary); }
 .stats-tab.active {
-  color: var(--oc-dark); border-bottom-color: var(--oc-dark); font-weight: 600;
+  color: var(--brand-primary); border-bottom-color: var(--brand-primary); font-weight: 600;
 }
 .stats-count { font-weight: 400; }
 
@@ -399,13 +409,13 @@ function homePageScript(lang: Lang): string {
       card.onclick = function() { location.href = '/project/' + p.id + langParam; };
       card.innerHTML = \`
         <div class="project-card-header">
-          <div class="project-card-icon" style="background: var(--oc-light);">
-            <i class="fas \${ind.icon}" style="color: var(--oc-dark); font-size: 18px;"></i>
+          <div class="project-card-icon" style="background: rgba(93,196,179,0.1);">
+            <i class="fas \${ind.icon}" style="color: var(--brand-primary); font-size: 18px;"></i>
           </div>
           <div style="flex:1; min-width:0;">
             <h3 class="project-card-title">\${p.companyName}</h3>
             <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
-              <span class="badge" style="color:var(--oc-dark); background:var(--oc-light);"><i class="fas \${ind.icon}" style="font-size:10px"></i> \${ind.label}</span>
+              <span class="badge badge-primary"><i class="fas \${ind.icon}" style="font-size:10px"></i> \${ind.label}</span>
               <span class="badge" style="color:\${st.color}; background:\${st.bg};">\${st.label}</span>
             </div>
           </div>

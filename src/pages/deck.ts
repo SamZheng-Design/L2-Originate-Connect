@@ -90,8 +90,8 @@ function generateSlides(p: OriginateProject, lang: Lang): string[] {
         <h2>${lang==='zh'?'产品与服务':'Product & Service'}</h2>
       </div>
       <div class="slide-body" style="display:flex; flex-direction:column; gap:24px; align-items:center;">
-        <div class="slide-big-icon" style="background: var(--oc-light);">
-          <i class="fas ${indIcon}" style="font-size: 48px; color: var(--oc-dark);"></i>
+        <div class="slide-big-icon" style="background: rgba(93,196,179,0.1);">
+          <i class="fas ${indIcon}" style="font-size: 48px; color: var(--brand-primary);"></i>
         </div>
         <div style="text-align:center; max-width:500px;">
           <h3 style="font-size:22px; font-weight:700; margin-bottom:8px; color:var(--text-title);">${indLabel} ${lang==='zh'?'行业':'Industry'}</h3>
@@ -137,7 +137,7 @@ function generateSlides(p: OriginateProject, lang: Lang): string[] {
           <div class="cost-label">${tt(TEXT.costStructure, lang)}</div>
           <div class="cost-strip">
             ${fi.costStructure.split('、').map((item: string, i: number) => {
-              const colors = ['#F59E0B','#5DC4B3','#32ade6','#86868b']
+              const colors = ['#5DC4B3','#5DC4B3','#32ade6','#86868b']
               const match = item.match(/(\d+)%/)
               const pct = match ? parseInt(match[1]) : 25
               return `<div class="cost-seg" style="width:${pct}%; background:${colors[i%colors.length]};" title="${item}">${pct}%</div>`
@@ -145,7 +145,7 @@ function generateSlides(p: OriginateProject, lang: Lang): string[] {
           </div>
           <div class="cost-legend">
             ${fi.costStructure.split('、').map((item: string, i: number) => {
-              const colors = ['#F59E0B','#5DC4B3','#32ade6','#86868b']
+              const colors = ['#5DC4B3','#5DC4B3','#32ade6','#86868b']
               return `<span class="cost-legend-item"><span class="cost-dot" style="background:${colors[i%colors.length]};"></span>${item}</span>`
             }).join('')}
           </div>
@@ -191,7 +191,7 @@ function generateSlides(p: OriginateProject, lang: Lang): string[] {
         <div class="advantage-visual">
           <div class="advantage-ring">
             <div class="advantage-ring-inner">
-              <i class="fas fa-star" style="font-size:28px; color:var(--oc-dark);"></i>
+              <i class="fas fa-star" style="font-size:28px; color:var(--brand-primary);"></i>
             </div>
           </div>
         </div>
@@ -414,7 +414,7 @@ const deckCSS = `
   @keyframes toastIn { from { opacity:0; transform:translateY(-12px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
 
   :root {
-    --oc-dark: #F59E0B; --oc-light: #FEF3C7; --oc-hover: #D97706;
+    --oc-dark: #5DC4B3; --oc-light: rgba(93,196,179,0.1); --oc-hover: #3D8F83;
     --brand-primary: #5DC4B3; --brand-light: #7DD4C7;
     --text-primary: #1d1d1f; --text-title: #1a1a1a;
     --text-secondary: #6e6e73; --text-tertiary: #86868b;
@@ -466,7 +466,7 @@ const deckCSS = `
     padding: 28px 36px 0; display: flex; align-items: center; gap: 12px;
   }
   .slide-header h2 { font-size: 22px; font-weight: 800; color: var(--text-title); }
-  .slide-header-icon { font-size: 20px; color: var(--oc-dark); }
+  .slide-header-icon { font-size: 20px; color: var(--brand-primary); }
   .slide-body { flex: 1; padding: 24px 36px 28px; overflow: auto; }
 
   /* Cover slide */
@@ -486,12 +486,12 @@ const deckCSS = `
     background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3);
     display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
   }
-  .cover-icon { font-size: 36px; color: var(--oc-dark); }
+  .cover-icon { font-size: 36px; color: var(--brand-primary); }
   .cover-title { font-family: var(--font-brand); font-size: 36px; font-weight: 900; color: #fff; }
   .cover-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 6px 16px; border-radius: 9999px;
-    background: rgba(245,158,11,0.15); color: var(--oc-dark);
+    background: rgba(245,158,11,0.15); color: var(--brand-primary);
     font-size: 14px; font-weight: 600;
   }
   .cover-tagline { font-size: 16px; color: rgba(255,255,255,0.6); max-width: 400px; }
@@ -509,14 +509,14 @@ const deckCSS = `
     padding: 16px; background: var(--bg-page); border-radius: 12px;
     display: flex; flex-direction: column; gap: 4px;
   }
-  .info-card-icon { font-size: 18px; color: var(--oc-dark); margin-bottom: 4px; }
+  .info-card-icon { font-size: 18px; color: var(--brand-primary); margin-bottom: 4px; }
   .info-card-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
   .info-card-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
   .slide-address-bar {
     margin-top: 16px; padding: 12px 16px; background: var(--bg-page); border-radius: 8px;
     font-size: 13px; color: var(--text-secondary);
   }
-  .slide-address-bar i { color: var(--oc-dark); margin-right: 8px; }
+  .slide-address-bar i { color: var(--brand-primary); margin-right: 8px; }
 
   /* Big icon */
   .slide-big-icon {
@@ -526,18 +526,18 @@ const deckCSS = `
 
   /* Highlight box */
   .slide-highlight-box {
-    padding: 16px 20px; background: var(--oc-light); border-radius: 12px;
-    border-left: 4px solid var(--oc-dark); width: 100%;
+    padding: 16px 20px; background: rgba(93,196,179,0.1); border-radius: 12px;
+    border-left: 4px solid var(--brand-primary); width: 100%;
   }
-  .highlight-label { font-size: 12px; font-weight: 600; color: var(--oc-hover); margin-bottom: 4px; }
+  .highlight-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); margin-bottom: 4px; }
   .highlight-value { font-size: 15px; font-weight: 600; color: var(--text-primary); }
 
   /* Financial metrics */
   .fin-metric { text-align: center; }
-  .fin-metric-value { font-size: 28px; font-weight: 800; color: var(--oc-dark); }
+  .fin-metric-value { font-size: 28px; font-weight: 800; color: var(--brand-primary); }
   .fin-metric-label { font-size: 12px; color: var(--text-secondary); margin: 4px 0 8px; }
   .fin-bar { height: 6px; background: var(--bg-page); border-radius: 3px; overflow: hidden; }
-  .fin-bar-fill { height: 100%; background: var(--oc-dark); border-radius: 3px; transition: width 600ms; }
+  .fin-bar-fill { height: 100%; background: var(--brand-primary); border-radius: 3px; transition: width 600ms; }
   .fin-bar-green { background: var(--color-success); }
 
   /* Cost strip */
@@ -550,21 +550,21 @@ const deckCSS = `
 
   /* Market */
   .market-size-hero { text-align: center; padding: 20px; }
-  .market-size-number { font-size: 48px; font-weight: 900; color: var(--oc-dark); font-family: var(--font-brand); }
+  .market-size-number { font-size: 48px; font-weight: 900; color: var(--brand-primary); font-family: var(--font-brand); }
   .market-size-label { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
   .slide-text-card {
     padding: 16px; background: var(--bg-page); border-radius: 12px;
   }
   .text-card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
-  .text-card-title i { color: var(--oc-dark); margin-right: 6px; }
+  .text-card-title i { color: var(--brand-primary); margin-right: 6px; }
   .text-card-body { font-size: 14px; color: var(--text-primary); line-height: 1.6; }
 
   /* Advantage */
   .advantage-visual { display: flex; justify-content: center; }
   .advantage-ring {
     width: 100px; height: 100px; border-radius: 50%;
-    border: 3px solid var(--oc-dark); display: flex; align-items: center; justify-content: center;
-    background: var(--oc-light);
+    border: 3px solid var(--brand-primary); display: flex; align-items: center; justify-content: center;
+    background: rgba(93,196,179,0.1);
   }
   .advantage-ring-inner { display: flex; align-items: center; justify-content: center; }
 
@@ -578,7 +578,7 @@ const deckCSS = `
   .founder-bg { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
   .team-stats { display: flex; gap: 24px; justify-content: center; }
   .team-stat-item { text-align: center; }
-  .team-stat-num { font-size: 28px; font-weight: 800; color: var(--oc-dark); }
+  .team-stat-num { font-size: 28px; font-weight: 800; color: var(--brand-primary); }
   .team-stat-label { font-size: 12px; color: var(--text-secondary); }
   .team-members-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
   .team-member-chip {
@@ -589,7 +589,7 @@ const deckCSS = `
 
   /* Financing */
   .financing-hero { text-align: center; padding: 16px; }
-  .financing-amount { font-size: 48px; font-weight: 900; color: var(--oc-dark); font-family: var(--font-brand); }
+  .financing-amount { font-size: 48px; font-weight: 900; color: var(--brand-primary); font-family: var(--font-brand); }
   .financing-label { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
   .financing-contact {
     margin-top: 20px; text-align: center;
@@ -626,8 +626,8 @@ const deckCSS = `
     cursor: pointer; transition: all 180ms; font-family: var(--font-body);
     flex-shrink: 0;
   }
-  .deck-thumb-btn:hover { border-color: var(--oc-dark); color: var(--oc-dark); }
-  .deck-thumb-btn.active { background: var(--oc-dark); color: #fff; border-color: var(--oc-dark); }
+  .deck-thumb-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+  .deck-thumb-btn.active { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); }
 
   /* Print */
   @media print {

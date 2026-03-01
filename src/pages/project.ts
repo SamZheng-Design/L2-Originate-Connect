@@ -180,7 +180,7 @@ export function renderProjectPage(lang: Lang, id: string): string {
         <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
           <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg" style="display:none" onchange="handleFileSelect(event)"/>
           <div style="margin-bottom: 12px;">
-            <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--oc-dark);"></i>
+            <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--brand-primary);"></i>
           </div>
           <p style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
             ${tt(TEXT.dragUpload, lang)}
@@ -346,7 +346,7 @@ const workspaceCSS = `
 }
 .section-num {
   display:inline-flex; align-items:center; justify-content:center;
-  font-size:14px; color:var(--oc-dark);
+  font-size:14px; color:var(--brand-primary);
 }
 .step-section { margin-bottom:32px; }
 
@@ -378,7 +378,7 @@ const workspaceCSS = `
   transition:all var(--duration-normal) var(--ease-spring);
 }
 .ai-step.done { color:var(--color-success); font-weight:600; }
-.ai-step.active { color:var(--oc-dark); font-weight:600; }
+.ai-step.active { color:var(--brand-primary); font-weight:600; }
 .ai-step-icon { font-size:18px; width:24px; text-align:center; }
 
 /* Tabs content */
@@ -405,7 +405,7 @@ const workspaceCSS = `
   margin-bottom:12px; display:flex; align-items:center; gap:8px;
   padding-bottom:8px; border-bottom:1px solid var(--border-default);
 }
-.pkg-section-title i { color:var(--oc-dark); font-size:14px; }
+.pkg-section-title i { color:var(--brand-primary); font-size:14px; }
 .pkg-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .pkg-item {
   display:flex; flex-direction:column; gap:2px;
@@ -415,7 +415,7 @@ const workspaceCSS = `
 .pkg-item-full { grid-column:1/-1; }
 .pkg-label { font-size:12px; color:var(--text-tertiary); font-weight:500; }
 .pkg-value { font-size:14px; color:var(--text-primary); font-weight:600; }
-.pkg-highlight { color:var(--oc-dark); font-size:16px; }
+.pkg-highlight { color:var(--brand-primary); font-size:16px; }
 @media(max-width:640px) { .pkg-grid { grid-template-columns:1fr; } }
 
 /* Deck thumbnails */
@@ -432,8 +432,8 @@ const workspaceCSS = `
   transition:all var(--duration-fast) var(--ease-spring);
   gap:6px;
 }
-.deck-thumb:hover { border-color:var(--oc-dark); box-shadow:var(--shadow-sm); transform:translateY(-2px); }
-.deck-thumb-num { font-size:20px; font-weight:800; color:var(--oc-dark); }
+.deck-thumb:hover { border-color:var(--brand-primary); box-shadow:var(--shadow-sm); transform:translateY(-2px); }
+.deck-thumb-num { font-size:20px; font-weight:800; color:var(--brand-primary); }
 .deck-thumb-title { font-size:11px; color:var(--text-secondary); font-weight:500; }
 
 /* Bottom bar */
@@ -582,7 +582,7 @@ function workspaceScript(lang: Lang, projectId: string, project: OriginateProjec
       if (currentStep < aiSteps.length) {
         const cur = document.getElementById(aiSteps[currentStep]);
         cur.className = 'ai-step active';
-        cur.querySelector('.ai-step-icon').innerHTML = '<i class="fas fa-spinner fa-spin" style="color:var(--oc-dark)"></i>';
+        cur.querySelector('.ai-step-icon').innerHTML = '<i class="fas fa-spinner fa-spin" style="color:var(--brand-primary)"></i>';
         const pct = Math.round(((currentStep + 0.5) / aiSteps.length) * 100);
         progFill.style.width = pct + '%';
         currentStep++;

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-// Footer — Aurora 深色背景简化版
+// Footer — v33 Aurora 深色 + 粒子效果
 // ═══════════════════════════════════════════════════════
 
 import type { Lang } from '../i18n'
@@ -7,7 +7,7 @@ import { tt, TEXT } from '../i18n'
 
 export function renderFooter(lang: Lang): string {
   return `
-  <footer class="footer">
+  <footer class="footer cyber-bg particles-bg">
     <div class="footer-inner">
       <div class="footer-brand">
         <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
@@ -39,13 +39,15 @@ export function renderFooter(lang: Lang): string {
 
 export const footerCSS = `
 .footer {
-  background: var(--gradient-aurora);
+  position: relative;
   padding: 48px 0 32px;
   margin-top: 80px;
+  overflow: hidden;
 }
 .footer-inner {
   max-width: 1200px; margin: 0 auto; padding: 0 24px;
   display: flex; flex-direction: column; align-items: center; gap: 20px;
+  position: relative; z-index: 1;
 }
 .footer-brand {
   display: flex; align-items: center; gap: 10px;
@@ -58,7 +60,7 @@ export const footerCSS = `
 }
 .footer-links a {
   font-size: 13px; color: rgba(255,255,255,0.5);
-  text-decoration: none; transition: color var(--duration-fast);
+  text-decoration: none; transition: color var(--duration-fast) var(--ease-apple);
 }
 .footer-links a:hover { color: var(--brand-light); }
 .footer-copyright {
