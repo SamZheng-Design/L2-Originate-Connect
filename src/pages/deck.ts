@@ -22,11 +22,10 @@ export function renderDeckPage(lang: Lang, id: string, themeId?: string, framewo
     return fallbackPage(lang, id, project?.companyName)
   }
 
-  // 将旧版数据转为新版格式
-  const data: DeckStructuredData = convertLegacyToNewFormat(project.structuredPackage, project.industry)
-
-  // 如果有AI生成的新版数据(存在 project.deckData)，优先使用
-  const deckData = (project as any).deckData || data
+  // 优先使用高质量预构建数据（deckData），否则从旧版数据转换
+  const deckData: DeckStructuredData = project.deckData
+    ? project.deckData as DeckStructuredData
+    : convertLegacyToNewFormat(project.structuredPackage, project.industry)
 
   // 确定模板和框架
   const selectedTheme = themeId || 'micro-connect'

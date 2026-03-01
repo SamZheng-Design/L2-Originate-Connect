@@ -270,19 +270,21 @@ function renderTeamSlide(c: TeamContent, theme: DeckTheme, lang: Lang): string {
 // ═══════════════════════════════════════════════════════
 
 function renderFinancingAsk(c: FinancingAskContent, theme: DeckTheme, lang: Lang): string {
-  const fundsPie = c.useOfFunds?.length ? `
-    <div class="s-funds-chart">
-      <h4 class="s-funds-title">${lang === 'zh' ? '资金用途' : 'Use of Funds'}</h4>
-      <div class="s-funds-bars">
-        ${c.useOfFunds.map((f, i) => `
-          <div class="s-fund-item">
-            <div class="s-fund-label">${f.item}</div>
-            <div class="s-fund-bar-track">
-              <div class="s-fund-bar-fill" style="width:${f.percentage}%; background:${theme.colors.chartColors[i % theme.colors.chartColors.length]};"></div>
+  const fundsSection = c.useOfFunds?.length ? `
+    <div class="s-financing-right">
+      <div class="s-funds-chart">
+        <h4 class="s-funds-title">${lang === 'zh' ? '资金用途' : 'Use of Funds'}</h4>
+        <div class="s-funds-bars">
+          ${c.useOfFunds.map((f, i) => `
+            <div class="s-fund-item">
+              <div class="s-fund-label">${f.item}</div>
+              <div class="s-fund-bar-track">
+                <div class="s-fund-bar-fill" style="width:${f.percentage}%; background:${theme.colors.chartColors[i % theme.colors.chartColors.length]};"></div>
+              </div>
+              <div class="s-fund-pct">${f.percentage}%</div>
             </div>
-            <div class="s-fund-pct">${f.percentage}%</div>
-          </div>
-        `).join('')}
+          `).join('')}
+        </div>
       </div>
     </div>` : ''
 
@@ -290,13 +292,16 @@ function renderFinancingAsk(c: FinancingAskContent, theme: DeckTheme, lang: Lang
     <div class="s-financing-hero">
       <div class="s-financing-amount">${c.amount}</div>
       <div class="s-financing-label">${lang === 'zh' ? '目标融资额' : 'Target Raise'}</div>
+      <div class="s-financing-details">
+        ${c.shareRatio ? `<div class="s-financing-detail"><i class="fas fa-percentage"></i><span class="s-fd-label">${lang === 'zh' ? '分成比例' : 'Share'}</span><span class="s-fd-value">${c.shareRatio}</span></div>` : ''}
+        ${c.urgency ? `<div class="s-financing-detail"><i class="fas fa-clock"></i><span class="s-fd-label">${lang === 'zh' ? '紧急度' : 'Urgency'}</span><span class="s-fd-value">${c.urgency}</span></div>` : ''}
+      </div>
+      <div class="s-financing-details">
+        <div class="s-financing-detail"><i class="fas fa-bullseye"></i><span class="s-fd-label">${lang === 'zh' ? '融资用途' : 'Purpose'}</span><span class="s-fd-value">${c.purpose}</span></div>
+      </div>
+      ${c.contactInfo ? `<div class="s-financing-details"><div class="s-financing-detail"><i class="fas fa-chart-line"></i><span class="s-fd-label">${lang === 'zh' ? '预期回报' : 'Expected ROI'}</span><span class="s-fd-value">${c.contactInfo}</span></div></div>` : ''}
     </div>
-    <div class="s-financing-details">
-      ${c.shareRatio ? `<div class="s-financing-detail"><i class="fas fa-percentage"></i><span class="s-fd-label">${lang === 'zh' ? '分成比例' : 'Share Ratio'}</span><span class="s-fd-value">${c.shareRatio}</span></div>` : ''}
-      ${c.urgency ? `<div class="s-financing-detail"><i class="fas fa-clock"></i><span class="s-fd-label">${lang === 'zh' ? '紧急程度' : 'Urgency'}</span><span class="s-fd-value">${c.urgency}</span></div>` : ''}
-      <div class="s-financing-detail"><i class="fas fa-bullseye"></i><span class="s-fd-label">${lang === 'zh' ? '融资用途' : 'Purpose'}</span><span class="s-fd-value">${c.purpose}</span></div>
-    </div>
-    ${fundsPie}
+    ${fundsSection}
   </div>`
 }
 
