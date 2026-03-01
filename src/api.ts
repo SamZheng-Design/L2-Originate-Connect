@@ -21,6 +21,109 @@ export const apiRoutes = new Hono<{ Bindings: Bindings }>()
 // ============================================================
 let projectsStore: OriginateProject[] = JSON.parse(JSON.stringify(mockProjects))
 
+// ============================================================
+// Auth — In-memory user/session store (Demo)
+// ============================================================
+interface UserRecord {
+  id: string; username: string; email: string; password: string
+  displayName: string; company?: string; phone?: string
+  title?: string; bio?: string; avatar?: string; defaultRole?: string
+  createdAt: string
+}
+
+const userStore: UserRecord[] = [
+  { id: 'u-demo', username: 'demo', email: 'demo@mc.com', password: 'demo123',
+    displayName: 'Demo User', company: '滴灌通', createdAt: '2025-01-01' },
+]
+const sessionStore: Record<string, { userId: string; expiresAt: number }> = {}
+
+function generateToken(): string {
+  return 'tok_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+}
+
+// ---- POST /auth/register ----
+apiRoutes.post('/auth/register', async (c) => {
+  try {
+    const body = await c.req.json<{
+      username: string; email: string; password: string
+      displayName?: string; company?: string
+    }>()
+    if (!body.username || !body.email || !body.password) {
+      return c.json({ success: false, error: 'username, email and password are required' }, 400)
+    }
+    if (userStore.find(u => u.email === body.email || u.username === body.username)) {
+      return c.json({ success: false, error: 'User already exists' }, 409)
+    }
+    const user: UserRecord = {
+      id: 'u-' + Date.now().toString(36),
+      username: body.username,
+      email: body.email,
+      password: body.password,
+      displayName: body.displayName || body.username,
+      company: body.company,
+      createdAt: new Date().toISOString().split('T')[0],
+    }
+    userStore.push(user)
+    const token = generateToken()
+    sessionStore[token] = { userId: user.id, expiresAt: Date.now() + 7 * 86400000 }
+    const { password: _, ...safeUser } = user
+    return c.json({ success: true, token, user: safeUser })
+  } catch {
+    return c.json({ success: false, error: 'Invalid request body' }, 400)
+  }
+})
+
+// ---- POST /auth/login ----
+apiRoutes.post('/auth/login', async (c) => {
+  try {
+    const body = await c.req.json<{ username: string; password: string }>()
+    if (!body.username || !body.password) {
+      return c.json({ success: false, error: 'username and password are required' }, 400)
+    }
+    const user = userStore.find(
+      u => (u.username === body.username || u.email === body.username) && u.password === body.password
+    )
+    if (!user) {
+      return c.json({ success: false, error: 'Invalid credentials' }, 401)
+    }
+    const token = generateToken()
+    sessionStore[token] = { userId: user.id, expiresAt: Date.now() + 7 * 86400000 }
+    const { password: _, ...safeUser } = user
+    return c.json({ success: true, token, user: safeUser })
+  } catch {
+    return c.json({ success: false, error: 'Invalid request body' }, 400)
+  }
+})
+
+// ---- POST /auth/logout ----
+apiRoutes.post('/auth/logout', async (c) => {
+  const auth = c.req.header('Authorization')
+  if (auth?.startsWith('Bearer ')) {
+    delete sessionStore[auth.slice(7)]
+  }
+  return c.json({ success: true })
+})
+
+// ---- GET /auth/me ----
+apiRoutes.get('/auth/me', (c) => {
+  const auth = c.req.header('Authorization')
+  if (!auth?.startsWith('Bearer ')) {
+    return c.json({ success: false, error: 'No token' }, 401)
+  }
+  const session = sessionStore[auth.slice(7)]
+  if (!session || session.expiresAt < Date.now()) {
+    return c.json({ success: false, error: 'Token expired' }, 401)
+  }
+  const user = userStore.find(u => u.id === session.userId)
+  if (!user) return c.json({ success: false, error: 'User not found' }, 404)
+  const { password: _, ...safeUser } = user
+  return c.json({ success: true, user: safeUser })
+})
+
+// ============================================================
+// Projects
+// ============================================================
+
 // ---- GET /api/projects ----
 apiRoutes.get('/projects', (c) => {
   return c.json({ success: true, projects: projectsStore })

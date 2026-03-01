@@ -5,7 +5,7 @@
 import type { Lang } from '../i18n'
 import { tt, TEXT } from '../i18n'
 import { designTokensCSS } from '../design-tokens'
-import { renderNavbar, navbarCSS } from './navbar'
+import { renderNavbar, navbarCSS, navbarScript } from './navbar'
 import { renderFooter, footerCSS } from './footer'
 import { renderToast, toastCSS, toastScript } from './toast'
 import { renderModal, modalCSS, modalScript } from './modal'
@@ -151,6 +151,7 @@ export function renderLayout(lang: Lang, title: string, body: string, extraCSS: 
     const LANG = '${lang}';
 
     ${splashScript}
+    ${navbarScript}
     ${toastScript}
     ${modalScript}
     ${extraScript}

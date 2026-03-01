@@ -9,6 +9,7 @@ import { getLang, tt, TEXT } from './i18n'
 import { renderHomePage } from './pages/home'
 import { renderProjectPage } from './pages/project'
 import { renderDeckPage } from './pages/deck'
+import { renderLoginPage } from './pages/login'
 import { apiRoutes } from './api'
 
 const app = new Hono()
@@ -20,6 +21,12 @@ app.use('/api/*', cors())
 app.route('/api', apiRoutes)
 
 // ============ Page Routes ============
+
+// Login / Register
+app.get('/login', (c) => {
+  const lang = getLang(c)
+  return c.html(renderLoginPage(lang))
+})
 
 // Home - Project list
 app.get('/', (c) => {
