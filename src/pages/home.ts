@@ -162,6 +162,75 @@ export function renderHomePage(lang: Lang): string {
   </div>
   `
 
+  const loginPromptModal = `
+  <!-- 登录提醒弹窗 (v33 onboarding style) -->
+  <div id="loginPromptModal" class="hidden fixed inset-0 flex items-center justify-center z-[300]" style="background:rgba(0,0,0,0.4); backdrop-filter:blur(16px) saturate(120%); -webkit-backdrop-filter:blur(16px) saturate(120%);">
+    <div class="bg-white rounded-3xl max-w-lg w-full mx-4 overflow-hidden animate-scale-in" style="box-shadow:0 24px 72px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.08); max-height:85vh;">
+      <!-- 顶部渐变背景 -->
+      <div class="relative h-48 overflow-hidden" style="background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 50%, #32ade6 100%);">
+        <div style="position:absolute;inset:0;background-image:url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);"></div>
+        <!-- 关闭按钮 -->
+        <button onclick="closeLoginPrompt()" class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-all z-10">
+          <i class="fas fa-times"></i>
+        </button>
+        <!-- 浮动Logo -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="animate-float">
+            <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center">
+              <i class="fas fa-upload text-white text-4xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 内容 -->
+      <div class="p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-3">${lang === 'zh' ? '欢迎使用发起通' : 'Welcome to Originate Connect'}</h2>
+        <p class="text-gray-500 mb-6">${lang === 'zh' ? '上传材料 · AI打包成书 · 分享给潜在参与方' : 'Upload materials · AI packages them · Share with investors'}</p>
+
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="p-4 bg-teal-50 rounded-2xl">
+            <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
+              <i class="fas fa-cloud-upload-alt text-teal-600 text-xl"></i>
+            </div>
+            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? '上传材料' : 'Upload'}</p>
+          </div>
+          <div class="p-4 bg-cyan-50 rounded-2xl">
+            <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
+              <i class="fas fa-robot text-cyan-600 text-xl"></i>
+            </div>
+            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? 'AI整理' : 'AI Process'}</p>
+          </div>
+          <div class="p-4 bg-pink-50 rounded-2xl">
+            <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3 transition-transform hover:scale-110">
+              <i class="fas fa-share-alt text-pink-600 text-xl"></i>
+            </div>
+            <p class="text-sm font-medium text-gray-700">${lang === 'zh' ? '分享链接' : 'Share'}</p>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="space-y-3">
+          <a href="/login${lang === 'en' ? '?lang=en' : ''}" class="block w-full py-3 rounded-xl font-medium shadow-lg text-white text-center transition-all hover:shadow-xl" style="background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);">
+            <i class="fas fa-sign-in-alt mr-2"></i>${tt(TEXT.login, lang)} / ${tt(TEXT.register, lang)}
+          </a>
+          <button onclick="handleGuestLoginHome()" class="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm">
+            <i class="fas fa-user-secret mr-2"></i>${lang === 'zh' ? '游客模式（体验功能）' : 'Guest Mode (Try Features)'}
+          </button>
+        </div>
+      </div>
+
+      <!-- 底部 -->
+      <div class="px-8 pb-6 flex items-center justify-between">
+        <button onclick="closeLoginPrompt()" class="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+          ${lang === 'zh' ? '稍后再说' : 'Maybe later'}
+        </button>
+        <p class="text-xs text-gray-300">POWERED BY MICRO CONNECT GROUP</p>
+      </div>
+    </div>
+  </div>
+  `
+
   const body = `
   <main>
     ${heroSection}
@@ -173,6 +242,7 @@ export function renderHomePage(lang: Lang): string {
       ${emptyState}
     </div>
   </main>
+  ${loginPromptModal}
   `
 
   const extraCSS = homePageCSS
@@ -304,11 +374,68 @@ const homePageCSS = `
   font-size: 14px; color: var(--text-secondary); max-width: 360px;
   margin: 0 auto;
 }
+
+/* Login Prompt Modal */
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.animate-scale-in { animation: scaleIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.modal-closing .animate-scale-in { animation: scaleOut 0.2s ease both; }
+@keyframes scaleOut { to { opacity: 0; transform: scale(0.95); } }
 `
 
 // ---- Page-specific JavaScript ----
 function homePageScript(lang: Lang): string {
   return `
+  // ========== 登录提醒弹窗 ==========
+  function checkLoginPrompt() {
+    var token = localStorage.getItem('oc_token');
+    if (!token) {
+      // 未登录 → 显示弹窗
+      var modal = document.getElementById('loginPromptModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  }
+  function closeLoginPrompt() {
+    var modal = document.getElementById('loginPromptModal');
+    if (modal) {
+      modal.classList.add('modal-closing');
+      setTimeout(function() {
+        modal.classList.add('hidden');
+        modal.classList.remove('modal-closing');
+        document.body.style.overflow = '';
+      }, 200);
+    }
+  }
+  function handleGuestLoginHome() {
+    var guestUser = {
+      id: 'guest_' + Date.now(),
+      username: 'guest',
+      displayName: LANG === 'zh' ? '游客用户' : 'Guest User',
+      email: '',
+      defaultRole: 'both',
+      isGuest: true
+    };
+    localStorage.setItem('oc_token', 'guest_token');
+    localStorage.setItem('oc_user', JSON.stringify(guestUser));
+    closeLoginPrompt();
+    showToast(LANG === 'zh' ? '游客模式，欢迎体验' : 'Guest mode, welcome!', 'success');
+    // 刷新 navbar 状态
+    var loginBtn = document.getElementById('nav-login-btn');
+    var userMenu = document.getElementById('nav-user-menu');
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (userMenu) {
+      userMenu.style.display = 'flex';
+      var nameEl = document.getElementById('nav-user-name');
+      if (nameEl) nameEl.textContent = guestUser.displayName;
+    }
+  }
+  // 页面加载后弹出登录提醒（在splash结束后）
+  setTimeout(checkLoginPrompt, 1200);
+
   // Filter projects by status tab
   function filterProjects(status) {
     document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
