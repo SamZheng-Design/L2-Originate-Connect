@@ -6,6 +6,7 @@
 import { Hono } from 'hono'
 import { mockProjects } from './mock-data'
 import type { OriginateProject, StructuredPackage, UploadedFile } from './mock-data'
+import { generateAIPrompt, convertLegacyToNewFormat, ALL_THEMES, type NarrativeFramework, type DeckStructuredData } from './deck-engine'
 
 type Bindings = {
   OPENAI_API_KEY?: string
@@ -247,7 +248,7 @@ apiRoutes.delete('/projects/:id/files/:fileId', (c) => {
 })
 
 // ============================================================
-// AI Processing — GPT-4o with Mock fallback
+// AI Processing — Deep Structured Output with Industry Prompts
 // ============================================================
 
 // ---- POST /api/projects/:id/process ----
@@ -256,32 +257,47 @@ apiRoutes.post('/projects/:id/process', async (c) => {
   const project = projectsStore.find(p => p.id === id)
   if (!project) return c.json({ success: false, error: 'Project not found' }, 404)
 
+  // Get framework and theme from request body (optional)
+  let framework: NarrativeFramework = 'classic'
+  let themeId = 'micro-connect'
+  try {
+    const body = await c.req.json<{ framework?: string; themeId?: string }>().catch(() => ({}))
+    if (body.framework) framework = body.framework as NarrativeFramework
+    if (body.themeId) themeId = body.themeId
+  } catch {}
+
   project.status = 'processing'
   project.updatedAt = new Date().toISOString().split('T')[0]
 
-  // Try real AI, fallback to mock
+  // Try real AI with deep prompts, fallback to enhanced mock
   const apiKey = c.env?.OPENAI_API_KEY
   const baseUrl = c.env?.OPENAI_BASE_URL || 'https://www.genspark.ai/api/llm_proxy/v1'
 
+  let deckData: DeckStructuredData
   let structuredPackage: StructuredPackage
 
   if (apiKey && apiKey.length > 10) {
     try {
-      structuredPackage = await callAI(apiKey, baseUrl, project)
+      deckData = await callDeepAI(apiKey, baseUrl, project, framework)
+      // Also generate legacy format for backward compatibility
+      structuredPackage = convertDeckDataToLegacy(deckData)
     } catch (err) {
-      console.error('AI call failed, using mock data:', err)
+      console.error('AI call failed, using enhanced mock data:', err)
       structuredPackage = generateMockPackage(project)
+      deckData = convertLegacyToNewFormat(structuredPackage, project.industry)
     }
   } else {
     structuredPackage = generateMockPackage(project)
+    deckData = convertLegacyToNewFormat(structuredPackage, project.industry)
   }
 
   project.structuredPackage = structuredPackage
+  ;(project as any).deckData = deckData  // Store enhanced data
   project.pitchDeck = {
-    pages: 8,
+    pages: 10,
     htmlContent: '',
     generatedAt: new Date().toISOString().split('T')[0],
-    templateUsed: getTemplateByIndustry(project.industry),
+    templateUsed: themeId,
   }
   project.status = 'ready'
   project.updatedAt = new Date().toISOString().split('T')[0]
@@ -289,7 +305,31 @@ apiRoutes.post('/projects/:id/process', async (c) => {
   return c.json({
     success: true,
     package: project.structuredPackage,
+    deckData,
     deck: project.pitchDeck,
+    availableThemes: ALL_THEMES.map(t => ({ id: t.id, name: t.name, category: t.category, isPremium: t.isPremium })),
+  })
+})
+
+// ---- GET /api/templates ----
+apiRoutes.get('/templates', (c) => {
+  return c.json({
+    success: true,
+    themes: ALL_THEMES.map(t => ({
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      category: t.category,
+      isPremium: t.isPremium,
+      colors: { primary: t.colors.primary, accent: t.colors.accent, background: t.colors.background },
+    })),
+    frameworks: [
+      { id: 'classic', name: { zh: '经典路演', en: 'Classic' } },
+      { id: 'yc', name: { zh: 'YC Demo Day', en: 'YC Demo Day' } },
+      { id: 'drip', name: { zh: '滴灌通模式', en: 'Drip Capital' } },
+      { id: 'storytelling', name: { zh: '故事驱动', en: 'Storytelling' } },
+      { id: 'data_heavy', name: { zh: '数据密集', en: 'Data Heavy' } },
+    ],
   })
 })
 
@@ -334,67 +374,24 @@ apiRoutes.post('/projects/:id/share', (c) => {
 })
 
 // ============================================================
-// AI Helper Functions
+// AI Helper Functions — Deep Structured Output
 // ============================================================
 
-async function callAI(
+async function callDeepAI(
   apiKey: string,
   baseUrl: string,
-  project: OriginateProject
-): Promise<StructuredPackage> {
+  project: OriginateProject,
+  framework: NarrativeFramework
+): Promise<DeckStructuredData> {
   const fileList = project.rawMaterials.map(f => `- ${f.name} (${f.type})`).join('\n')
 
-  const systemPrompt = `你是一个专业的融资材料整理专家。请根据以下融资者上传的材料信息，按照给定的 JSON Schema 输出结构化的融资材料包。
-
-要求：
-1. 所有字段都必须填写，不能为空
-2. 金额单位为万元
-3. 比例单位为百分比
-4. 分析要专业、简洁、有数据支撑
-5. 根据公司名称和行业合理推断信息
-6. 只返回纯 JSON，不要 markdown 代码块
-
-JSON Schema:
-{
-  "companyOverview": {
-    "name": "string (公司名称)",
-    "legalPerson": "string (法人代表)",
-    "foundedDate": "string (YYYY-MM-DD)",
-    "registeredCapital": "string (如：500万)",
-    "address": "string (办公地址)",
-    "employees": "number (员工人数)"
-  },
-  "financials": {
-    "monthlyRevenue": "number (月收入，万元)",
-    "monthlyGrowthRate": "number (月增长率，%)",
-    "costStructure": "string (如：食材40%、人工25%、租金20%、其他15%)",
-    "profitMargin": "number (利润率，%)"
-  },
-  "financingNeed": {
-    "amount": "number (融资金额，万元)",
-    "expectedShareRatio": "number (预期分成比例，%)",
-    "purpose": "string (融资用途)",
-    "urgency": "string (high/medium/low)"
-  },
-  "industryInfo": {
-    "category": "string (行业代码：catering/concert/retail/healthcare/education/saas/ecommerce/service)",
-    "marketSize": "string (市场规模描述)",
-    "competitors": "string (竞争格局)",
-    "moat": "string (竞争壁垒)"
-  },
-  "teamInfo": {
-    "founderBackground": "string (创始人背景)",
-    "teamSize": "number (团队规模)",
-    "keyMembers": ["string (姓名-职位)"]
-  }
-}`
-
-  const userPrompt = `公司名称：${project.companyName}
-行业：${project.industry}
-上传的材料文件：
-${fileList || '(暂无文件详情)'}
-
-请根据以上信息，生成专业的结构化融资材料包。如果某些具体数据无法从文件名推断，请基于行业平均水平和公司名称合理生成示范数据。`
+  // Use industry-specific deep prompts
+  const { systemPrompt, userPrompt } = generateAIPrompt(
+    project.industry,
+    framework,
+    project.companyName,
+    fileList
+  )
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -409,7 +406,7 @@ ${fileList || '(暂无文件详情)'}
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 4000,
     }),
   })
 
@@ -421,20 +418,57 @@ ${fileList || '(暂无文件详情)'}
   const data = await response.json() as any
   const content = data.choices?.[0]?.message?.content || ''
 
-  // Parse JSON from response (handle markdown code blocks)
+  // Parse JSON from response
   let jsonStr = content.trim()
   if (jsonStr.startsWith('```')) {
     jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
   }
 
-  const parsed = JSON.parse(jsonStr) as StructuredPackage
+  const parsed = JSON.parse(jsonStr) as DeckStructuredData
 
   // Validate essential fields
-  if (!parsed.companyOverview || !parsed.financials || !parsed.financingNeed) {
+  if (!parsed.company || !parsed.financials || !parsed.financing || !parsed.narrative) {
     throw new Error('AI response missing required fields')
   }
 
   return parsed
+}
+
+// Convert new DeckStructuredData back to legacy StructuredPackage for backward compat
+function convertDeckDataToLegacy(d: DeckStructuredData): StructuredPackage {
+  return {
+    companyOverview: {
+      name: d.company.name,
+      legalPerson: d.company.legalPerson,
+      foundedDate: d.company.foundedDate,
+      registeredCapital: d.company.registeredCapital,
+      address: d.company.address,
+      employees: d.company.employees,
+    },
+    financials: {
+      monthlyRevenue: d.financials.monthlyRevenue,
+      monthlyGrowthRate: d.financials.monthlyGrowthRate,
+      costStructure: d.financials.costStructure.map(c => `${c.item}${c.percentage}%`).join('、'),
+      profitMargin: d.financials.netMargin,
+    },
+    financingNeed: {
+      amount: d.financing.amount,
+      expectedShareRatio: d.financing.expectedShareRatio,
+      purpose: d.financing.purpose,
+      urgency: d.financing.urgency,
+    },
+    industryInfo: {
+      category: d.market.targetCustomer || '',
+      marketSize: d.market.size,
+      competitors: d.market.competitors,
+      moat: d.market.moat,
+    },
+    teamInfo: {
+      founderBackground: d.team.founderBackground,
+      teamSize: d.team.teamSize,
+      keyMembers: d.team.keyMembers.map(m => `${m.name}-${m.role}`),
+    },
+  }
 }
 
 function generateMockPackage(project: OriginateProject): StructuredPackage {

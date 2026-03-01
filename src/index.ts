@@ -9,6 +9,7 @@ import { getLang, tt, TEXT } from './i18n'
 import { renderHomePage } from './pages/home'
 import { renderProjectPage } from './pages/project'
 import { renderDeckPage } from './pages/deck'
+import { renderTemplateMarketPage } from './pages/template-market'
 import { renderLoginPage } from './pages/login'
 import { apiRoutes } from './api'
 
@@ -41,11 +42,19 @@ app.get('/project/:id', (c) => {
   return c.html(renderProjectPage(lang, id))
 })
 
-// Pitch Deck fullscreen preview
+// Pitch Deck fullscreen preview (supports ?theme=xxx&framework=xxx)
 app.get('/project/:id/deck', (c) => {
   const lang = getLang(c)
   const id = c.req.param('id')
-  return c.html(renderDeckPage(lang, id))
+  const theme = c.req.query('theme') || undefined
+  const framework = c.req.query('framework') || undefined
+  return c.html(renderDeckPage(lang, id, theme, framework))
+})
+
+// Template Market — 模板市场
+app.get('/templates', (c) => {
+  const lang = getLang(c)
+  return c.html(renderTemplateMarketPage(lang))
 })
 
 export default app

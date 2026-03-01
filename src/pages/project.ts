@@ -8,6 +8,7 @@ import { renderLayout } from '../components/layout'
 import { tt, TEXT, INDUSTRIES, PROJECT_STATUS, formatMoney } from '../i18n'
 import { mockProjects } from '../mock-data'
 import type { OriginateProject, StructuredPackage } from '../mock-data'
+import { ALL_THEMES } from '../deck-engine'
 
 // ---- helpers ----
 function fileIcon(type: string): string {
@@ -206,6 +207,40 @@ export function renderProjectPage(lang: Lang, id: string): string {
           `).join('') : ''}
         </div>
 
+        <!-- Template & Framework Selector -->
+        <div class="card" style="padding: 20px; margin-top: 20px;">
+          <h3 style="font-size:15px; font-weight:700; color:var(--text-title); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-palette" style="color:var(--brand-primary);"></i> 
+            ${lang === 'zh' ? '选择模板和叙事框架' : 'Choose Template & Framework'}
+          </h3>
+          <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px;">
+              <label class="form-label">${lang === 'zh' ? '主题模板' : 'Theme'}</label>
+              <select id="select-theme" class="form-select">
+                ${ALL_THEMES.map(th => {
+                  const name = lang === 'en' ? th.name.en : th.name.zh
+                  return `<option value="${th.id}" ${th.id === 'micro-connect' ? 'selected' : ''}>${name}${th.isPremium ? ' ★' : ''}</option>`
+                }).join('')}
+              </select>
+            </div>
+            <div style="flex:1; min-width:200px;">
+              <label class="form-label">${lang === 'zh' ? '叙事框架' : 'Narrative Framework'}</label>
+              <select id="select-framework" class="form-select">
+                <option value="classic" selected>${lang === 'zh' ? '经典路演 (痛点→方案→财务→Ask)' : 'Classic (Problem→Solution→Financials→Ask)'}</option>
+                <option value="yc">YC Demo Day (Traction→Problem→Solution)</option>
+                <option value="drip">${lang === 'zh' ? '滴灌通模式 (单位经济→门店→分成)' : 'Drip Capital (Unit Economics→Store→Share)'}</option>
+                <option value="storytelling">${lang === 'zh' ? '故事驱动 (创始人→痛点→Aha→愿景)' : 'Storytelling (Founder→Pain→Aha→Vision)'}</option>
+                <option value="data_heavy">${lang === 'zh' ? '数据密集 (KPI→趋势→对标→预测)' : 'Data Heavy (KPI→Trends→Benchmarks→Forecast)'}</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <a href="/templates${lang === 'en' ? '?lang=en' : ''}" target="_blank" style="font-size:12px; color:var(--brand-primary); font-weight:500;">
+              <i class="fas fa-external-link-alt"></i> ${lang === 'zh' ? '浏览模板市场查看更多 →' : 'Browse Template Market →'}
+            </a>
+          </div>
+        </div>
+
         <!-- Start AI button -->
         <div style="text-align: center; margin-top: 24px;">
           <button class="btn btn-primary btn-lg" id="btn-start-ai" onclick="startAIProcess()">
@@ -263,11 +298,20 @@ export function renderProjectPage(lang: Lang, id: string): string {
         <!-- Tab: Pitch Deck -->
         <div class="tab-content" id="tab-deck" style="display:none;">
           <div class="deck-preview-area">
+            <!-- Theme switcher for preview -->
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; justify-content:center;">
+              ${ALL_THEMES.map(th => {
+                const name = lang === 'en' ? th.name.en : th.name.zh
+                return `<button class="deck-theme-btn ${th.id === 'micro-connect' ? 'active' : ''}" data-theme="${th.id}" onclick="switchDeckTheme('${th.id}')" style="padding:6px 12px; border-radius:9999px; border:1px solid var(--border-default); background:var(--bg-white); font-size:12px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                  <span style="width:10px;height:10px;border-radius:50%;background:${th.colors.primary};display:inline-block;"></span> ${name}
+                </button>`
+              }).join('')}
+            </div>
             <div class="deck-slides-row" id="deck-slides-row">
               ${hasResults ? renderDeckThumbnails(project!, lang) : ''}
             </div>
             <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
-              <a href="/project/${id}/deck${langQ}" class="btn btn-brand">
+              <a href="/project/${id}/deck${langQ}" class="btn btn-brand" id="deck-preview-link">
                 <i class="fas fa-expand"></i> ${tt(TEXT.fullPreview, lang)}
               </a>
               <button class="btn btn-secondary" onclick="generateShareLink()">
@@ -634,7 +678,9 @@ function workspaceScript(lang: Lang, projectId: string, project: OriginateProjec
   }
 
   function exportPDF() {
-    location.href = '/project/' + PROJECT_ID + '/deck${langQ}';
+    const themeId = document.getElementById('select-theme')?.value || 'micro-connect';
+    const framework = document.getElementById('select-framework')?.value || 'classic';
+    location.href = '/project/' + PROJECT_ID + '/deck?theme=' + themeId + '&framework=' + framework + '${langQ}';
   }
 
   function publishProject() {
@@ -646,7 +692,9 @@ function workspaceScript(lang: Lang, projectId: string, project: OriginateProjec
   }
 
   function generateShareLink() {
-    const link = location.origin + '/project/' + PROJECT_ID + '/deck${langQ}';
+    const themeId = document.getElementById('select-theme')?.value || 'micro-connect';
+    const framework = document.getElementById('select-framework')?.value || 'classic';
+    const link = location.origin + '/project/' + PROJECT_ID + '/deck?theme=' + themeId + '&framework=' + framework + '${langQ ? '&' + langQ.slice(1) : ''}';
     navigator.clipboard.writeText(link).then(() => {
       showToast('${tt(TEXT.toastLinkCopied, lang)}', 'success');
     }).catch(() => {
@@ -656,6 +704,29 @@ function workspaceScript(lang: Lang, projectId: string, project: OriginateProjec
       document.execCommand('copy'); document.body.removeChild(ta);
       showToast('${tt(TEXT.toastLinkCopied, lang)}', 'success');
     });
+  }
+
+  // ---- Theme switcher for deck preview ----
+  function switchDeckTheme(themeId) {
+    // Update button states
+    document.querySelectorAll('.deck-theme-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.theme === themeId);
+      if (b.dataset.theme === themeId) {
+        b.style.borderColor = 'var(--brand-primary)';
+        b.style.background = 'rgba(93,196,179,0.1)';
+      } else {
+        b.style.borderColor = '';
+        b.style.background = '';
+      }
+    });
+    // Update theme select
+    const sel = document.getElementById('select-theme');
+    if (sel) sel.value = themeId;
+    // Update preview link
+    const framework = document.getElementById('select-framework')?.value || 'classic';
+    const link = document.getElementById('deck-preview-link');
+    if (link) link.href = '/project/' + PROJECT_ID + '/deck?theme=' + themeId + '&framework=' + framework + '${langQ ? '&' + langQ.slice(1) : ''}';
+    showToast('${lang === 'zh' ? '模板已切换' : 'Theme switched'}', 'success');
   }
 
   // ---- Init: if local project, populate info ----
