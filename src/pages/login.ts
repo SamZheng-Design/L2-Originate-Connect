@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════
-// 登录 / 注册页面 — v33 Design System
-// Aurora 深色背景 + 毛玻璃卡片 + 粒子浮动 + 精致微交互
+// 登录 / 注册页面 — 完全对齐 MC-Revolution v33
+// Aurora深色背景 + 白色圆角卡片 + 双圆Logo + 角色选择
 // ═══════════════════════════════════════════════════════
 
 import type { Lang } from '../i18n'
@@ -18,6 +18,7 @@ export function renderLoginPage(lang: Lang): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${tt(TEXT.login, lang)} - ${tt(TEXT.appName, lang)} | ${tt(TEXT.brandName, lang)}</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='20' r='12' fill='%232EC4B6' opacity='.85'/%3E%3Ccircle cx='24' cy='20' r='12' fill='%233DD8CA' opacity='.85'/%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     ${designTokensCSS}
@@ -39,186 +40,157 @@ export function renderLoginPage(lang: Lang): string {
     <div class="loading-sub">Originate Connect</div>
   </div>
 
-  <!-- ===== Main Login Scene ===== -->
-  <div class="login-scene cyber-bg particles-bg">
-    <!-- Floating orbs for depth -->
-    <div class="login-orb login-orb-1"></div>
-    <div class="login-orb login-orb-2"></div>
-    <div class="login-orb login-orb-3"></div>
+  <!-- ===== Auth Page (v33) ===== -->
+  <div class="page active flex flex-col min-h-screen cyber-bg particles-bg">
+    <div class="flex-1 flex items-center justify-center p-4 relative z-10">
+      <!-- Language switch -->
+      <a href="?lang=${otherLang}" class="login-lang-btn">${langLabel}</a>
 
-    <!-- Language switch (top right) -->
-    <a href="?lang=${otherLang}" class="login-lang-btn">${langLabel}</a>
-
-    <!-- Center container -->
-    <div class="login-container">
-      <!-- Brand header -->
-      <div class="login-brand animate-fade-in">
-        <svg width="48" height="48" viewBox="0 0 40 40" fill="none" class="login-brand-logo">
-          <circle cx="16" cy="20" r="12" fill="#2EC4B6" opacity="0.85"/>
-          <circle cx="24" cy="20" r="12" fill="#3DD8CA" opacity="0.85"/>
-          <path d="M20 10.5a12 12 0 010 19" fill="#28A696" opacity="0.6"/>
-        </svg>
-        <div class="login-brand-name">${tt(TEXT.brandName, lang)}</div>
-        <div class="login-brand-sub">${tt(TEXT.appName, lang)} · Originate Connect</div>
-      </div>
-
-      <!-- Glass card -->
-      <div class="login-card animate-slide-up">
-        <!-- Tab switch: Login / Register -->
-        <div class="login-tabs">
-          <button class="login-tab active" id="tab-login" onclick="switchTab('login')">${tt(TEXT.login, lang)}</button>
-          <button class="login-tab" id="tab-register" onclick="switchTab('register')">${tt(TEXT.register, lang)}</button>
-          <div class="login-tab-indicator" id="tab-indicator"></div>
+      <!-- White card (v33 style) -->
+      <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden animate-scale-in" style="box-shadow: 0 24px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08);">
+        
+        <!-- Logo区域 -->
+        <div class="p-8 text-center" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+          <div class="mx-auto mb-5 animate-float" style="width:52px; height:68px; position:relative;">
+            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, #2EC4B6 0%, #3DD8CA 100%); position:absolute; top:0; left:4px; box-shadow: 0 4px 16px rgba(46,196,182,0.35);"></div>
+            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, #28A696 0%, #2EC4B6 100%); position:absolute; bottom:0; left:4px; box-shadow: 0 4px 16px rgba(40,166,150,0.3); opacity:0.85;"></div>
+          </div>
+          <h1 style="font-family:'Montserrat',sans-serif; font-weight:900; font-size:22px; letter-spacing:0.04em; color:#1a1a1a; line-height:1.15; margin-bottom:6px;">ORIGINATE<br>CONNECT</h1>
+          <div style="width:120px; height:2.5px; background:#2EC4B6; margin:8px auto 10px; border-radius:2px;"></div>
+          <p style="font-family:'Montserrat',sans-serif; font-size:9px; letter-spacing:0.2em; color:#666; font-weight:500;">POWERED BY MICRO CONNECT GROUP</p>
+          <p class="text-lg font-bold mt-3" style="color:#1a1a1a;">${tt(TEXT.appName, lang)}</p>
         </div>
 
-        <!-- ===== Login Form ===== -->
-        <form class="login-form" id="form-login" onsubmit="handleLogin(event)">
-          <div class="login-form-header">
-            <h2 class="login-form-title">${tt(TEXT.loginTitle, lang)}</h2>
-            <p class="login-form-desc">${tt(TEXT.loginSubtitle, lang)}</p>
-          </div>
+        <!-- 登录/注册 Tab -->
+        <div class="flex" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+          <button onclick="switchAuthTab('login')" id="tabLogin" class="flex-1 py-3 text-center font-semibold" style="color:#2EC4B6; border-bottom: 2px solid #2EC4B6;">${tt(TEXT.login, lang)}</button>
+          <button onclick="switchAuthTab('register')" id="tabRegister" class="flex-1 py-3 text-center font-semibold" style="color:#86868b;">${tt(TEXT.register, lang)}</button>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label-float">
-              <i class="fas fa-user"></i>
-              <input type="text" id="login-username" class="form-input-v33" placeholder=" " required autocomplete="username"/>
-              <span class="form-label-text">${tt(TEXT.emailOrUsername, lang)}</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label-float">
-              <i class="fas fa-lock"></i>
-              <input type="password" id="login-password" class="form-input-v33" placeholder=" " required autocomplete="current-password"/>
-              <span class="form-label-text">${tt(TEXT.password, lang)}</span>
-              <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </label>
-          </div>
-
-          <div class="form-row">
-            <label class="form-checkbox">
-              <input type="checkbox" id="remember-me"/>
-              <span class="checkbox-visual"></span>
-              <span>${tt(TEXT.rememberMe, lang)}</span>
-            </label>
-            <a href="#" class="form-link">${tt(TEXT.forgotPassword, lang)}</a>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-lg login-submit" id="login-btn">
-            <span class="btn-text">${tt(TEXT.login, lang)}</span>
-            <span class="btn-loading" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
-            <i class="fas fa-arrow-right btn-icon"></i>
-          </button>
-
-          <div class="login-divider">
-            <span>${tt(TEXT.orLoginWith, lang)}</span>
-          </div>
-
-          <div class="social-login-row">
-            <button type="button" class="social-btn" title="WeChat">
-              <i class="fab fa-weixin"></i>
-            </button>
-            <button type="button" class="social-btn" title="Google">
-              <i class="fab fa-google"></i>
-            </button>
-            <button type="button" class="social-btn" title="Apple">
-              <i class="fab fa-apple"></i>
-            </button>
-          </div>
-
-          <div class="login-switch">
-            ${tt(TEXT.noAccount, lang)} <a href="#" onclick="switchTab('register'); return false;">${tt(TEXT.registerNow, lang)}</a>
-          </div>
-        </form>
-
-        <!-- ===== Register Form ===== -->
-        <form class="login-form" id="form-register" style="display:none;" onsubmit="handleRegister(event)">
-          <div class="login-form-header">
-            <h2 class="login-form-title">${tt(TEXT.registerTitle, lang)}</h2>
-            <p class="login-form-desc">${tt(TEXT.registerSubtitle, lang)}</p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label-float">
-              <i class="fas fa-user"></i>
-              <input type="text" id="reg-name" class="form-input-v33" placeholder=" " required/>
-              <span class="form-label-text">${tt(TEXT.displayName, lang)}</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label-float">
-              <i class="fas fa-envelope"></i>
-              <input type="email" id="reg-email" class="form-input-v33" placeholder=" " required autocomplete="email"/>
-              <span class="form-label-text">${tt(TEXT.email, lang)}</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label-float">
-              <i class="fas fa-building"></i>
-              <input type="text" id="reg-company" class="form-input-v33" placeholder=" "/>
-              <span class="form-label-text">${tt(TEXT.company, lang)}</span>
-            </label>
-          </div>
-
-          <div class="form-row-2col">
-            <div class="form-group">
-              <label class="form-label-float">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="reg-password" class="form-input-v33" placeholder=" " required autocomplete="new-password"/>
-                <span class="form-label-text">${tt(TEXT.password, lang)}</span>
-                <button type="button" class="password-toggle" onclick="togglePassword('reg-password', this)">
+        <!-- ===== 登录表单 ===== -->
+        <div id="formLogin" class="p-6">
+          <form onsubmit="event.preventDefault(); handleLogin();" autocomplete="on">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.emailOrUsername, lang)}</label>
+              <input type="text" id="loginUsername" placeholder="${lang === 'zh' ? '请输入用户名或邮箱' : 'Enter username or email'}" autocomplete="username"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.password, lang)}</label>
+              <div class="password-wrapper">
+                <input type="password" id="loginPassword" placeholder="${lang === 'zh' ? '请输入密码' : 'Enter password'}" autocomplete="current-password"
+                  class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="password-toggle" tabindex="-1">
                   <i class="fas fa-eye"></i>
                 </button>
-              </label>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label-float">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="reg-confirm" class="form-input-v33" placeholder=" " required autocomplete="new-password"/>
-                <span class="form-label-text">${tt(TEXT.confirmPassword, lang)}</span>
+            <div class="flex items-center justify-between text-sm">
+              <label class="flex items-center text-gray-600 cursor-pointer whitespace-nowrap">
+                <input type="checkbox" id="rememberMe" class="mr-2 rounded" style="width:16px;height:16px;flex-shrink:0; accent-color: #2EC4B6;">
+                <span>${tt(TEXT.rememberMe, lang)}</span>
               </label>
+              <a href="#" class="text-teal-600 hover:text-teal-700">${tt(TEXT.forgotPassword, lang)}</a>
             </div>
+            <button type="submit" id="loginBtn" class="w-full py-3 btn-primary rounded-xl font-medium shadow-lg">
+              <i class="fas fa-sign-in-alt mr-2"></i>${tt(TEXT.login, lang)}
+            </button>
+            <button type="button" onclick="handleGuestLogin()" class="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm">
+              <i class="fas fa-user-secret mr-2"></i>${lang === 'zh' ? '游客模式（体验功能）' : 'Guest Mode (Try Features)'}
+            </button>
           </div>
+          <p id="loginError" class="hidden mt-4 text-sm text-red-500 text-center"></p>
+          </form>
 
-          <label class="form-checkbox" style="margin-bottom: 20px;">
-            <input type="checkbox" id="agree-terms" required/>
-            <span class="checkbox-visual"></span>
-            <span>
-              ${tt(TEXT.agreeTerms, lang)}
-              <a href="#" class="form-link-inline">${tt(TEXT.termsLink, lang)}</a>
-              ${tt(TEXT.andText, lang)}
-              <a href="#" class="form-link-inline">${tt(TEXT.privacyLink, lang)}</a>
-            </span>
-          </label>
-
-          <button type="submit" class="btn btn-primary btn-lg login-submit" id="register-btn">
-            <span class="btn-text">${tt(TEXT.register, lang)}</span>
-            <span class="btn-loading" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
-            <i class="fas fa-arrow-right btn-icon"></i>
-          </button>
-
-          <div class="login-switch">
-            ${tt(TEXT.hasAccount, lang)} <a href="#" onclick="switchTab('login'); return false;">${tt(TEXT.loginNow, lang)}</a>
+          <!-- 企业SSO入口 -->
+          <div class="mt-6 pt-6 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center mb-3">${lang === 'zh' ? '企业用户' : 'Enterprise'}</p>
+            <button onclick="handleSSOLogin()" class="w-full py-3 bg-gray-100 text-gray-500 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center text-sm">
+              <i class="fas fa-building mr-2"></i>${lang === 'zh' ? '公司SSO登录（即将上线）' : 'Company SSO Login (Coming Soon)'}
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
 
-      <!-- Bottom tagline -->
-      <div class="login-footer animate-fade-in delay-500">
-        <span>${tt(TEXT.copyright, lang)}</span>
+        <!-- ===== 注册表单 ===== -->
+        <div id="formRegister" class="hidden p-6">
+          <form onsubmit="event.preventDefault(); handleRegister();" autocomplete="on">
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">${lang === 'zh' ? '用户名' : 'Username'} <span class="text-red-500">*</span></label>
+                <input type="text" id="regUsername" placeholder="${lang === 'zh' ? '用于登录' : 'For login'}" 
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.displayName, lang)}</label>
+                <input type="text" id="regDisplayName" placeholder="${lang === 'zh' ? '显示名称' : 'Display name'}" 
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.email, lang)} <span class="text-red-500">*</span></label>
+              <input type="email" id="regEmail" placeholder="your@email.com" 
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${lang === 'zh' ? '手机号' : 'Phone'}</label>
+              <input type="tel" id="regPhone" placeholder="${lang === 'zh' ? '13800138000' : '+1 (555) 000-0000'}" 
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.password, lang)} <span class="text-red-500">*</span></label>
+              <div class="password-wrapper">
+                <input type="password" id="regPassword" placeholder="${lang === 'zh' ? '至少6位' : 'Min 6 chars'}" autocomplete="new-password"
+                  class="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                  onkeydown="if(event.key==='Enter')handleRegister()">
+                <button type="button" onclick="togglePasswordVisibility('regPassword', this)" class="password-toggle" tabindex="-1">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${lang === 'zh' ? '默认角色' : 'Default Role'}</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="selectRegRole('investor')" id="regRoleInvestor" class="py-2 px-3 border-2 border-gray-200 rounded-lg text-sm hover:border-teal-300 text-center transition-colors">
+                  <i class="fas fa-landmark text-teal-500 block mb-1"></i>${lang === 'zh' ? '投资方' : 'Investor'}
+                </button>
+                <button type="button" onclick="selectRegRole('borrower')" id="regRoleBorrower" class="py-2 px-3 border-2 border-gray-200 rounded-lg text-sm hover:border-amber-300 text-center transition-colors">
+                  <i class="fas fa-store text-amber-500 block mb-1"></i>${lang === 'zh' ? '融资方' : 'Borrower'}
+                </button>
+                <button type="button" onclick="selectRegRole('both')" id="regRoleBoth" class="py-2 px-3 border-2 rounded-lg text-sm text-center transition-colors" style="border-color:#2EC4B6; background:rgba(46,196,182,0.08);">
+                  <i class="fas fa-exchange-alt text-cyan-500 block mb-1"></i>${lang === 'zh' ? '两者皆可' : 'Both'}
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">${tt(TEXT.company, lang)}</label>
+                <input type="text" id="regCompany" placeholder="${lang === 'zh' ? '所属公司' : 'Your company'}" 
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">${lang === 'zh' ? '职位' : 'Title'}</label>
+                <input type="text" id="regTitle" placeholder="${lang === 'zh' ? '您的职位' : 'Your title'}" 
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+              </div>
+            </div>
+            <button type="submit" id="registerBtn" class="w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors shadow-lg text-sm">
+              <i class="fas fa-user-plus mr-2"></i>${tt(TEXT.register, lang)}
+            </button>
+          </div>
+          <p id="registerError" class="hidden mt-4 text-sm text-red-500 text-center"></p>
+          </form>
+        </div>
       </div>
     </div>
+    <p class="text-center text-sm pb-4 relative z-10" style="color: rgba(255,255,255,0.4);">${tt(TEXT.copyright, lang)}</p>
   </div>
-
-  <!-- ===== Toast ===== -->
-  <div id="toast-container" class="toast-container"></div>
 
   <script>
     const LANG = '${lang}';
+    let selectedRegRole = 'both';
 
     // ---- Splash screen ----
     window.addEventListener('load', function() {
@@ -231,52 +203,30 @@ export function renderLoginPage(lang: Lang): string {
       }, 600);
     });
 
-    // ---- Toast ----
-    function showToast(message, type, duration) {
-      type = type || 'success';
-      duration = duration || 3000;
-      var container = document.getElementById('toast-container');
-      var toast = document.createElement('div');
-      toast.className = 'toast toast-' + type;
-      var iconMap = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-      toast.innerHTML = '<i class="fas ' + (iconMap[type] || iconMap.info) + '"></i><span>' + message + '</span>';
-      container.appendChild(toast);
-      setTimeout(function() {
-        toast.classList.add('toast-exit');
-        setTimeout(function() { toast.remove(); }, 300);
-      }, duration);
-    }
-
-    // ---- Tab switching (login ↔ register) ----
-    function switchTab(tab) {
-      var loginForm = document.getElementById('form-login');
-      var regForm = document.getElementById('form-register');
-      var tabLogin = document.getElementById('tab-login');
-      var tabReg = document.getElementById('tab-register');
-      var indicator = document.getElementById('tab-indicator');
-
-      if (tab === 'register') {
-        loginForm.style.display = 'none';
-        regForm.style.display = 'block';
-        tabLogin.classList.remove('active');
-        tabReg.classList.add('active');
-        indicator.style.transform = 'translateX(100%)';
-        regForm.classList.add('form-enter');
-        setTimeout(function() { regForm.classList.remove('form-enter'); }, 400);
+    // ---- Tab switching ----
+    function switchAuthTab(tab) {
+      var tabLogin = document.getElementById('tabLogin');
+      var tabReg = document.getElementById('tabRegister');
+      // Reset both
+      tabLogin.className = 'flex-1 py-3 text-center font-semibold';
+      tabReg.className = 'flex-1 py-3 text-center font-semibold';
+      if (tab === 'login') {
+        tabLogin.style.color = '#2EC4B6'; tabLogin.style.borderBottom = '2px solid #2EC4B6';
+        tabReg.style.color = '#86868b'; tabReg.style.borderBottom = 'none';
+        document.getElementById('formLogin').classList.remove('hidden');
+        document.getElementById('formRegister').classList.add('hidden');
       } else {
-        regForm.style.display = 'none';
-        loginForm.style.display = 'block';
-        tabReg.classList.remove('active');
-        tabLogin.classList.add('active');
-        indicator.style.transform = 'translateX(0)';
-        loginForm.classList.add('form-enter');
-        setTimeout(function() { loginForm.classList.remove('form-enter'); }, 400);
+        tabReg.style.color = '#2EC4B6'; tabReg.style.borderBottom = '2px solid #2EC4B6';
+        tabLogin.style.color = '#86868b'; tabLogin.style.borderBottom = 'none';
+        document.getElementById('formRegister').classList.remove('hidden');
+        document.getElementById('formLogin').classList.add('hidden');
       }
     }
 
     // ---- Password toggle ----
-    function togglePassword(inputId, btn) {
+    function togglePasswordVisibility(inputId, btn) {
       var input = document.getElementById(inputId);
+      if (!input) return;
       var icon = btn.querySelector('i');
       if (input.type === 'password') {
         input.type = 'text';
@@ -287,22 +237,39 @@ export function renderLoginPage(lang: Lang): string {
       }
     }
 
+    // ---- Role selector ----
+    function selectRegRole(role) {
+      selectedRegRole = role;
+      ['investor', 'borrower', 'both'].forEach(function(r) {
+        var btn = document.getElementById('regRole' + r.charAt(0).toUpperCase() + r.slice(1));
+        if (btn) {
+          if (r === role) {
+            btn.style.borderColor = '#2EC4B6';
+            btn.style.backgroundColor = 'rgba(46,196,182,0.08)';
+          } else {
+            btn.style.borderColor = '';
+            btn.style.backgroundColor = '';
+            btn.className = 'py-2 px-3 border-2 border-gray-200 rounded-lg text-sm hover:border-gray-300 text-center transition-colors';
+          }
+        }
+      });
+    }
+
     // ---- Login handler ----
-    function handleLogin(e) {
-      e.preventDefault();
-      var btn = document.getElementById('login-btn');
-      var username = document.getElementById('login-username').value.trim();
-      var password = document.getElementById('login-password').value;
+    function handleLogin() {
+      var username = document.getElementById('loginUsername').value.trim();
+      var password = document.getElementById('loginPassword').value;
+      var errorEl = document.getElementById('loginError');
+      var loginBtn = document.getElementById('loginBtn');
 
-      if (!username || !password) return;
+      if (!username || !password) {
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>${lang === 'zh' ? '请输入用户名和密码' : 'Please enter username and password'}';
+        errorEl.className = 'form-error mt-4';
+        return;
+      }
 
-      // Loading state
-      btn.disabled = true;
-      btn.querySelector('.btn-text').style.display = 'none';
-      btn.querySelector('.btn-icon').style.display = 'none';
-      btn.querySelector('.btn-loading').style.display = 'inline-flex';
+      if (loginBtn) { loginBtn.classList.add('btn-loading'); loginBtn.disabled = true; }
 
-      // Simulate API call (or real call to /api/auth/login)
       fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -310,115 +277,133 @@ export function renderLoginPage(lang: Lang): string {
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
-        if (data.success || data.token) {
-          // Save session
-          localStorage.setItem('oc_token', data.token || 'demo-token');
-          localStorage.setItem('oc_user', JSON.stringify(data.user || { name: username }));
-          showToast('${tt(TEXT.loginSuccess, lang)}', 'success');
-          // Redirect with success animation
-          document.querySelector('.login-card').classList.add('card-exit');
-          setTimeout(function() {
-            location.href = '/${lang === 'en' ? '?lang=en' : ''}';
-          }, 800);
+        if (data.success) {
+          localStorage.setItem('oc_token', data.token);
+          localStorage.setItem('oc_user', JSON.stringify(data.user));
+          errorEl.className = 'hidden';
+          onLoginSuccess(data.user);
         } else {
-          showToast(data.error || '${tt(TEXT.loginFailed, lang)}', 'error');
-          resetBtn(btn);
+          errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>' + (data.error || '${lang === 'zh' ? '登录失败' : 'Login failed'}');
+          errorEl.className = 'form-error mt-4';
+          if (loginBtn) { loginBtn.classList.remove('btn-loading'); loginBtn.disabled = false; }
         }
       })
       .catch(function() {
-        // Demo mode: allow login
-        localStorage.setItem('oc_token', 'demo-tok-' + Date.now());
-        localStorage.setItem('oc_user', JSON.stringify({ name: username, email: username + '@demo.com' }));
-        showToast('${tt(TEXT.loginSuccess, lang)}', 'success');
-        document.querySelector('.login-card').classList.add('card-exit');
-        setTimeout(function() {
-          location.href = '/${lang === 'en' ? '?lang=en' : ''}';
-        }, 800);
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>${lang === 'zh' ? '网络错误，请重试' : 'Network error, please retry'}';
+        errorEl.className = 'form-error mt-4';
+        if (loginBtn) { loginBtn.classList.remove('btn-loading'); loginBtn.disabled = false; }
       });
     }
 
     // ---- Register handler ----
-    function handleRegister(e) {
-      e.preventDefault();
-      var btn = document.getElementById('register-btn');
-      var name = document.getElementById('reg-name').value.trim();
-      var email = document.getElementById('reg-email').value.trim();
-      var company = document.getElementById('reg-company').value.trim();
-      var password = document.getElementById('reg-password').value;
-      var confirm = document.getElementById('reg-confirm').value;
+    function handleRegister() {
+      var username = document.getElementById('regUsername').value.trim();
+      var email = document.getElementById('regEmail').value.trim();
+      var password = document.getElementById('regPassword').value;
+      var displayName = document.getElementById('regDisplayName').value.trim();
+      var phone = document.getElementById('regPhone').value.trim();
+      var company = document.getElementById('regCompany').value.trim();
+      var title = document.getElementById('regTitle').value.trim();
+      var errorEl = document.getElementById('registerError');
+      var regBtn = document.getElementById('registerBtn');
 
-      if (password !== confirm) {
-        showToast('${tt(TEXT.passwordMismatch, lang)}', 'error');
-        document.getElementById('reg-confirm').focus();
+      if (!username || !email || !password) {
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>${lang === 'zh' ? '请填写必填项（用户名、邮箱、密码）' : 'Please fill required fields (username, email, password)'}';
+        errorEl.className = 'form-error mt-4';
+        return;
+      }
+      if (password.length < 6) {
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>${lang === 'zh' ? '密码至少6位' : 'Password must be at least 6 characters'}';
+        errorEl.className = 'form-error mt-4';
         return;
       }
 
-      // Loading state
-      btn.disabled = true;
-      btn.querySelector('.btn-text').style.display = 'none';
-      btn.querySelector('.btn-icon').style.display = 'none';
-      btn.querySelector('.btn-loading').style.display = 'inline-flex';
+      if (regBtn) { regBtn.classList.add('btn-loading'); regBtn.disabled = true; }
 
       fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: name, email: email, password: password, displayName: name, company: company })
+        body: JSON.stringify({ username: username, email: email, password: password, displayName: displayName || username, phone: phone, company: company, title: title, defaultRole: selectedRegRole })
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
-        if (data.success || data.token) {
-          localStorage.setItem('oc_token', data.token || 'demo-token');
-          localStorage.setItem('oc_user', JSON.stringify(data.user || { name: name, email: email }));
-          showToast('${tt(TEXT.registerSuccess, lang)}', 'success');
-          document.querySelector('.login-card').classList.add('card-exit');
-          setTimeout(function() {
-            location.href = '/${lang === 'en' ? '?lang=en' : ''}';
-          }, 800);
+        if (data.success) {
+          localStorage.setItem('oc_token', data.token);
+          localStorage.setItem('oc_user', JSON.stringify(data.user));
+          errorEl.className = 'hidden';
+          onLoginSuccess(data.user);
         } else {
-          showToast(data.error || '${tt(TEXT.registerFailed, lang)}', 'error');
-          resetBtn(btn);
+          errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>' + (data.error || '${lang === 'zh' ? '注册失败' : 'Registration failed'}');
+          errorEl.className = 'form-error mt-4';
+          if (regBtn) { regBtn.classList.remove('btn-loading'); regBtn.disabled = false; }
         }
       })
       .catch(function() {
-        // Demo mode
-        localStorage.setItem('oc_token', 'demo-tok-' + Date.now());
-        localStorage.setItem('oc_user', JSON.stringify({ name: name, email: email }));
-        showToast('${tt(TEXT.registerSuccess, lang)}', 'success');
-        document.querySelector('.login-card').classList.add('card-exit');
-        setTimeout(function() {
-          location.href = '/${lang === 'en' ? '?lang=en' : ''}';
-        }, 800);
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>${lang === 'zh' ? '网络错误，请重试' : 'Network error, please retry'}';
+        errorEl.className = 'form-error mt-4';
+        if (regBtn) { regBtn.classList.remove('btn-loading'); regBtn.disabled = false; }
       });
     }
 
-    function resetBtn(btn) {
-      btn.disabled = false;
-      btn.querySelector('.btn-text').style.display = '';
-      btn.querySelector('.btn-icon').style.display = '';
-      btn.querySelector('.btn-loading').style.display = 'none';
+    // ---- Guest login ----
+    function handleGuestLogin() {
+      var guestUser = {
+        id: 'guest_' + Date.now(),
+        username: 'guest',
+        displayName: LANG === 'zh' ? '游客用户' : 'Guest User',
+        email: '',
+        defaultRole: 'both',
+        isGuest: true
+      };
+      localStorage.setItem('oc_token', 'guest_token');
+      localStorage.setItem('oc_user', JSON.stringify(guestUser));
+      onLoginSuccess(guestUser);
     }
 
-    // ---- Input focus ripple effect ----
-    document.querySelectorAll('.form-input-v33').forEach(function(input) {
-      input.addEventListener('focus', function() {
-        this.closest('.form-label-float').classList.add('focused');
-      });
-      input.addEventListener('blur', function() {
-        this.closest('.form-label-float').classList.remove('focused');
-        if (this.value) this.closest('.form-label-float').classList.add('has-value');
-        else this.closest('.form-label-float').classList.remove('has-value');
-      });
-    });
+    // ---- SSO login placeholder ----
+    function handleSSOLogin() {
+      alert(LANG === 'zh' ? '企业SSO登录即将上线，敬请期待' : 'Enterprise SSO login coming soon');
+    }
+
+    // ---- On login success ----
+    function onLoginSuccess(user) {
+      var name = user.displayName || user.username || 'User';
+      // Simple success toast
+      showLoginToast(LANG === 'zh' ? '登录成功，欢迎 ' + name : 'Welcome, ' + name, 'success');
+      setTimeout(function() {
+        location.href = '/' + (LANG === 'en' ? '?lang=en' : '');
+      }, 800);
+    }
+
+    // ---- Simple toast for login page ----
+    function showLoginToast(msg, type) {
+      var toast = document.createElement('div');
+      toast.className = 'login-toast login-toast-' + type;
+      toast.innerHTML = '<i class="fas ' + (type === 'success' ? 'fa-check-circle' : 'fa-info-circle') + '"></i> ' + msg;
+      document.body.appendChild(toast);
+      setTimeout(function() {
+        toast.classList.add('login-toast-exit');
+        setTimeout(function() { toast.remove(); }, 300);
+      }, 2500);
+    }
+
+    // ---- Auto redirect if already logged in ----
+    (function() {
+      var token = localStorage.getItem('oc_token');
+      if (token) {
+        location.href = '/' + (LANG === 'en' ? '?lang=en' : '');
+      }
+    })();
   </script>
 </body>
 </html>`
 }
 
 // ═══════════════════════════════════════════════════════
-// Login Page CSS — v33 Design Language
+// Login CSS — v33 aligned
 // ═══════════════════════════════════════════════════════
 const loginCSS = `
-/* ===== Splash (reuse v33 splash) ===== */
+/* ===== Splash (v33) ===== */
 #app-loading {
   position: fixed; inset: 0;
   background: linear-gradient(135deg, #0a2e2a 0%, #0f3d36 25%, #0c3530 50%, #164e47 75%, #1a6b5f 100%);
@@ -439,13 +424,11 @@ const loginCSS = `
   position: relative; z-index: 1; margin-bottom: 24px;
   animation: float 3s ease-in-out infinite;
 }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .loading-spinner {
   position: relative; z-index: 1; width: 48px; height: 48px;
   border: 2.5px solid rgba(255, 255, 255, 0.12); border-radius: 50%;
   border-top-color: white; animation: spin 0.7s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 .loading-text {
   position: relative; z-index: 1;
   color: white; font-size: 22px; font-weight: 700;
@@ -459,375 +442,97 @@ const loginCSS = `
   margin-top: 8px; font-weight: 500; letter-spacing: 1px;
 }
 
-/* ===== Login Scene ===== */
-.login-scene {
-  position: relative;
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px 20px;
-  overflow: hidden;
-}
-
-/* ===== Floating Orbs (v33 depth) ===== */
-.login-orb {
-  position: absolute; border-radius: 50%;
-  filter: blur(60px);
-  pointer-events: none;
-  animation: orbFloat 20s ease-in-out infinite;
-}
-.login-orb-1 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(46, 196, 182, 0.18) 0%, transparent 70%);
-  top: -100px; left: -100px;
-  animation-duration: 18s;
-}
-.login-orb-2 {
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(50, 173, 230, 0.14) 0%, transparent 70%);
-  bottom: -80px; right: -60px;
-  animation-duration: 22s;
-  animation-delay: -5s;
-}
-.login-orb-3 {
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(52, 199, 89, 0.1) 0%, transparent 70%);
-  top: 30%; right: 15%;
-  animation-duration: 25s;
-  animation-delay: -10s;
-}
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -20px) scale(1.05); }
-  50% { transform: translate(-15px, 15px) scale(0.95); }
-  75% { transform: translate(20px, 10px) scale(1.03); }
-}
-
 /* ===== Language button ===== */
 .login-lang-btn {
   position: absolute; top: 24px; right: 28px; z-index: 10;
-  padding: 6px 16px; border-radius: var(--radius-full);
+  padding: 6px 16px; border-radius: 9999px;
   font-size: 13px; font-weight: 600;
   color: rgba(255,255,255,0.7); text-decoration: none;
   border: 1px solid rgba(255,255,255,0.15);
   background: rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
-  transition: all var(--duration-normal) var(--ease-apple);
+  transition: all 0.28s cubic-bezier(0.28, 0.11, 0.32, 1);
 }
 .login-lang-btn:hover {
   color: #fff; border-color: rgba(255,255,255,0.3);
   background: rgba(255,255,255,0.1);
 }
 
-/* ===== Container ===== */
-.login-container {
-  position: relative; z-index: 2;
-  width: 100%; max-width: 440px;
-  display: flex; flex-direction: column; align-items: center;
-}
-
-/* ===== Brand ===== */
-.login-brand {
-  display: flex; flex-direction: column; align-items: center;
-  margin-bottom: 28px;
-}
-.login-brand-logo {
-  filter: drop-shadow(0 4px 20px rgba(46, 196, 182, 0.4));
-  animation: float 3s ease-in-out infinite;
-}
-.login-brand-name {
-  font-family: var(--font-brand); font-size: 16px; font-weight: 800;
-  color: #fff; letter-spacing: 0.5px; margin-top: 16px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
-}
-.login-brand-sub {
-  font-size: 13px; color: rgba(255,255,255,0.45);
-  margin-top: 4px; font-weight: 500;
-}
-
-/* ===== Glass Card ===== */
-.login-card {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-2xl);
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.1),
-    0 24px 48px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transition: all 0.6s cubic-bezier(0.28, 0.11, 0.32, 1);
-}
-.login-card.card-exit {
-  transform: scale(0.95) translateY(-20px);
-  opacity: 0;
-}
-
-/* ===== Tabs ===== */
-.login-tabs {
-  display: flex; position: relative;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.login-tab {
-  flex: 1; padding: 16px 0;
-  font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.45);
-  background: none; border: none; cursor: pointer;
-  font-family: var(--font-body);
-  transition: color var(--duration-normal) var(--ease-apple);
-  position: relative; z-index: 1;
-}
-.login-tab:hover { color: rgba(255,255,255,0.7); }
-.login-tab.active { color: #fff; }
-.login-tab-indicator {
-  position: absolute; bottom: -1px; left: 0;
-  width: 50%; height: 2px;
-  background: var(--gradient-neon);
-  border-radius: 1px;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 0 0 12px rgba(93, 196, 179, 0.4);
-}
-
-/* ===== Form ===== */
-.login-form {
-  padding: 28px 32px 32px;
-}
-.login-form-header {
-  margin-bottom: 24px;
-}
-.login-form-title {
-  font-size: 22px; font-weight: 800; color: #fff;
-  letter-spacing: -0.03em; margin: 0 0 6px;
-}
-.login-form-desc {
-  font-size: 13px; color: rgba(255,255,255,0.45);
-  line-height: 1.5; margin: 0;
-}
-
-/* Form enter animation */
-.form-enter {
-  animation: formEnter 0.4s var(--ease-spring) both;
-}
-@keyframes formEnter {
-  from { opacity: 0; transform: translateX(16px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-/* ===== Float label input ===== */
-.form-group { margin-bottom: 16px; }
-.form-label-float {
-  position: relative; display: block;
-}
-.form-label-float i:first-child {
-  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  font-size: 14px; color: rgba(255,255,255,0.3);
-  transition: color var(--duration-normal);
-  z-index: 1;
-}
-.form-input-v33 {
-  width: 100%; padding: 14px 14px 14px 40px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  color: #fff; font-size: 14px;
-  font-family: var(--font-body);
-  transition: all var(--duration-normal) var(--ease-apple);
-  outline: none;
-}
-.form-input-v33::placeholder { color: transparent; }
-.form-label-text {
-  position: absolute; left: 40px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px; color: rgba(255,255,255,0.4);
-  pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-origin: left center;
-}
-
-/* Float up on focus/has-value */
-.form-input-v33:focus ~ .form-label-text,
-.form-input-v33:not(:placeholder-shown) ~ .form-label-text {
-  top: 6px; left: 40px;
-  transform: translateY(0) scale(0.8);
-  color: var(--brand-light);
-}
-.form-input-v33:focus {
-  border-color: rgba(93, 196, 179, 0.5);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 0 3px rgba(93, 196, 179, 0.12), 0 0 20px rgba(93, 196, 179, 0.08);
-}
-.form-label-float.focused i:first-child {
-  color: var(--brand-light);
-}
-
-/* Password toggle */
+/* ===== Password wrapper ===== */
+.password-wrapper { position: relative; }
 .password-toggle {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: rgba(255,255,255,0.3);
-  cursor: pointer; padding: 4px;
-  transition: color var(--duration-fast);
-}
-.password-toggle:hover { color: rgba(255,255,255,0.6); }
-
-/* ===== Form row ===== */
-.form-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 24px;
-}
-.form-row-2col {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-}
-
-/* ===== Checkbox ===== */
-.form-checkbox {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 13px; color: rgba(255,255,255,0.55);
-  cursor: pointer;
-}
-.form-checkbox input { display: none; }
-.checkbox-visual {
-  width: 18px; height: 18px; border-radius: 4px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.04);
+  width: 32px; height: 32px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  transition: all var(--duration-fast) var(--ease-apple);
-  position: relative;
-  flex-shrink: 0;
+  color: #94a3b8; cursor: pointer;
+  transition: all 0.15s;
+  background: transparent; border: none; padding: 0;
 }
-.form-checkbox input:checked ~ .checkbox-visual {
-  background: var(--gradient-primary);
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 8px rgba(93, 196, 179, 0.3);
+.password-toggle:hover { color: #475569; background: #f1f5f9; }
+
+/* ===== Form error (v33 shake) ===== */
+.form-error {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  background: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 12px; color: #dc2626; font-size: 13px;
+  animation: shakeX 0.4s ease-in-out;
 }
-.form-checkbox input:checked ~ .checkbox-visual::after {
-  content: '\\f00c';
-  font-family: 'Font Awesome 6 Free';
-  font-weight: 900;
-  font-size: 10px; color: #fff;
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
-/* ===== Links ===== */
-.form-link {
-  font-size: 13px; color: var(--brand-light);
-  text-decoration: none;
-  transition: color var(--duration-fast);
-}
-.form-link:hover { color: #fff; }
-.form-link-inline {
-  color: var(--brand-light); text-decoration: none;
-  transition: color var(--duration-fast);
-}
-.form-link-inline:hover { color: #fff; text-decoration: underline; }
-
-/* ===== Submit button ===== */
-.login-submit {
-  width: 100%; margin-bottom: 20px;
-  font-size: 15px; padding: 14px 0;
+/* ===== Button loading (v33) ===== */
+.btn-loading {
   position: relative;
-  background: var(--gradient-primary);
-  box-shadow: 0 4px 16px rgba(93, 196, 179, 0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+  color: transparent !important;
+  pointer-events: none;
 }
-.login-submit:hover {
+.btn-loading::after {
+  content: '';
+  position: absolute; width: 20px; height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%; border-top-color: white;
+  animation: spin 0.7s linear infinite;
+  left: 50%; top: 50%;
+  margin-left: -10px; margin-top: -10px;
+}
+
+/* ===== btn-primary (v33 teal gradient) ===== */
+.btn-primary {
+  background: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);
+  color: #fff; border: none; cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+.btn-primary:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(93,196,179,0.35);
   transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(93, 196, 179, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-}
-.login-submit:active {
-  transform: translateY(0) scale(0.98);
-}
-.btn-icon { font-size: 12px; margin-left: 4px; }
-
-/* ===== Divider ===== */
-.login-divider {
-  display: flex; align-items: center; gap: 16px;
-  margin-bottom: 20px;
-}
-.login-divider::before, .login-divider::after {
-  content: ''; flex: 1; height: 1px;
-  background: rgba(255,255,255,0.08);
-}
-.login-divider span {
-  font-size: 12px; color: rgba(255,255,255,0.3);
-  white-space: nowrap;
-}
-
-/* ===== Social login ===== */
-.social-login-row {
-  display: flex; justify-content: center; gap: 16px;
-  margin-bottom: 20px;
-}
-.social-btn {
-  width: 48px; height: 48px; border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255,255,255,0.6);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--duration-normal) var(--ease-apple);
-}
-.social-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* ===== Login switch (bottom text) ===== */
-.login-switch {
-  text-align: center; font-size: 13px;
-  color: rgba(255,255,255,0.4);
-}
-.login-switch a {
-  color: var(--brand-light); text-decoration: none;
-  font-weight: 600;
-  transition: color var(--duration-fast);
-}
-.login-switch a:hover { color: #fff; }
-
-/* ===== Footer ===== */
-.login-footer {
-  margin-top: 32px; font-size: 12px;
-  color: rgba(255,255,255,0.25);
 }
 
 /* ===== Toast ===== */
-.toast-container {
+.login-toast {
   position: fixed; top: 24px; right: 24px; z-index: 10000;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px; border-radius: var(--radius-md);
+  padding: 14px 24px; border-radius: 12px;
   font-size: 14px; font-weight: 500;
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  animation: toastIn 0.35s var(--ease-spring) both;
-  min-width: 220px;
+  animation: toastIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.toast-success { background: rgba(52, 199, 89, 0.9); color: #fff; }
-.toast-error { background: rgba(255, 55, 95, 0.9); color: #fff; }
-.toast-warning { background: rgba(255, 159, 10, 0.9); color: #fff; }
-.toast-info { background: rgba(50, 173, 230, 0.9); color: #fff; }
-.toast-exit { animation: toastOut 0.3s var(--ease-apple) both; }
+.login-toast-success { background: rgba(52, 199, 89, 0.9); color: #fff; }
+.login-toast-info { background: rgba(50, 173, 230, 0.9); color: #fff; }
+.login-toast-exit { animation: toastOut 0.3s ease both; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(-12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes toastOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-12px) scale(0.96); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-12px) scale(0.96); } }
 
-/* ===== Utility animations ===== */
-.animate-fade-in { animation: fadeIn var(--duration-normal) var(--ease-apple) both; }
-.animate-slide-up { animation: slideUp var(--duration-slow) var(--ease-apple) both; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.delay-500 { animation-delay: 500ms; }
-
-/* ===== Responsive ===== */
-@media (max-width: 520px) {
-  .login-form { padding: 24px 20px 28px; }
-  .login-form-title { font-size: 20px; }
-  .login-container { max-width: 100%; }
-  .form-row-2col { grid-template-columns: 1fr; }
-  .login-orb-1 { width: 250px; height: 250px; }
-  .login-orb-2 { width: 180px; height: 180px; }
-  .login-orb-3 { display: none; }
-}
+/* ===== Animations ===== */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-scale-in { animation: scaleIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 `

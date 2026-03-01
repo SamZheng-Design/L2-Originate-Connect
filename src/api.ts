@@ -28,6 +28,7 @@ interface UserRecord {
   id: string; username: string; email: string; password: string
   displayName: string; company?: string; phone?: string
   title?: string; bio?: string; avatar?: string; defaultRole?: string
+  isGuest?: boolean
   createdAt: string
 }
 
@@ -46,7 +47,7 @@ apiRoutes.post('/auth/register', async (c) => {
   try {
     const body = await c.req.json<{
       username: string; email: string; password: string
-      displayName?: string; company?: string
+      displayName?: string; company?: string; phone?: string; title?: string; defaultRole?: string
     }>()
     if (!body.username || !body.email || !body.password) {
       return c.json({ success: false, error: 'username, email and password are required' }, 400)
@@ -61,6 +62,9 @@ apiRoutes.post('/auth/register', async (c) => {
       password: body.password,
       displayName: body.displayName || body.username,
       company: body.company,
+      phone: body.phone,
+      title: body.title,
+      defaultRole: body.defaultRole || 'both',
       createdAt: new Date().toISOString().split('T')[0],
     }
     userStore.push(user)
